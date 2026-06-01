@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Recovery — 3-Week Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #f3efe6;
+    --paper-2: #ece6d8;
+    --ink: #2c2a26;
+    --ink-soft: #716c62;
+    --ink-faint: #9a9488;
+    --line: #ddd5c5;
+    --accent: #9a6b46;
+    --accent-soft: #e9ddcd;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Spectral", Georgia, serif;
+    font-size: 18px;
+    line-height: 1.55;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 22px 96px;
+  }
+
+  /* ---- Top bar ---- */
+  header.topbar {
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    z-index: 10;
+  }
+  .topbar-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px 22px 0;
+  }
+  .brand {
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .brand-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .sync {
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .sync.err { color: #a4502f; }
+  .reconnect-banner[hidden] { display: none; }
+  .reconnect-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 8px 22px;
+    background: var(--accent-soft);
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .reconnect-banner button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .fs-status {
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  nav.views {
+    display: flex;
+    gap: 2px;
+    margin-top: 12px;
+  }
+  nav.views button {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+    font-size: 13.5px;
+    letter-spacing: 0.01em;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 4px 2px 10px;
+    white-space: nowrap;
+  }
+  nav.views button.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ---- Generic ---- */
+  h1, h2, h3 { font-weight: 500; }
+  p { margin: 0 0 14px; }
+  .muted { color: var(--ink-soft); }
+  .faint { color: var(--ink-faint); }
+  .center { text-align: center; }
+
+  /* ---- Start screen ---- */
+  .start {
+    margin-top: 64px;
+    text-align: center;
+  }
+  .start h1 {
+    font-size: 32px;
+    margin: 0 0 8px;
+    font-weight: 400;
+  }
+  .start .lede {
+    color: var(--ink-soft);
+    font-style: italic;
+    max-width: 26em;
+    margin: 0 auto 36px;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-family: inherit;
+    font-size: 18px;
+    min-height: 48px;
+    padding: 0 26px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .btn.ghost {
+    background: none;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .start .alt {
+    margin-top: 26px;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .start input[type="date"] {
+    font-family: inherit;
+    font-size: 16px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 8px 10px;
+    border-radius: 2px;
+    margin-top: 8px;
+  }
+
+  /* ---- Day header ---- */
+  .dayhead {
+    margin-top: 24px;
+  }
+  .dayhead .week-label {
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .dayhead h1 {
+    font-size: 30px;
+    margin: 4px 0 2px;
+    font-weight: 400;
+  }
+  .dayhead .date {
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .dayhead .phase {
+    margin-top: 2px;
+    color: var(--ink-soft);
+  }
+
+  /* ---- progress ---- */
+  .progress {
+    margin: 18px 0 6px;
+  }
+  .progress .bar {
+    height: 6px;
+    background: var(--paper-2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress .bar > i {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+  .progress .pct {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+  }
+
+  /* ---- sections / checklist ---- */
+  .section {
+    margin-top: 30px;
+  }
+  .section > .section-title {
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .item {
+    border-bottom: 1px solid var(--line);
+    padding: 4px 0;
+  }
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-height: 44px;
+    padding: 8px 0;
+    cursor: pointer;
+  }
+  .check input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    margin: 2px 0 0;
+    border: 1.5px solid var(--accent);
+    border-radius: 4px;
+    flex: 0 0 auto;
+    cursor: pointer;
+    position: relative;
+    background: var(--paper);
+  }
+  .check input:checked { background: var(--accent); }
+  .check input:checked::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 3px;
+    width: 5px;
+    height: 11px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .check span { flex: 1; }
+  .item.done .check span {
+    color: var(--ink-faint);
+    text-decoration: line-through;
+    text-decoration-color: var(--ink-faint);
+  }
+  .item-note {
+    display: block;
+    width: 100%;
+    font-family: inherit;
+    font-size: 15px;
+    font-style: italic;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--line);
+    color: var(--ink-soft);
+    padding: 4px 0 8px 38px;
+    margin-bottom: 2px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.4;
+  }
+  .item-note::placeholder { color: var(--ink-faint); }
+  .item-note:focus { outline: none; border-bottom-color: var(--accent); }
+
+  .week-task .check span::before {
+    content: "◆ ";
+    color: var(--accent);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+
+  /* ---- questions ---- */
+  .qfield { margin-bottom: 16px; }
+  .qfield label {
+    display: block;
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .qfield input,
+  textarea.notes,
+  textarea.assess {
+    width: 100%;
+    font-family: inherit;
+    font-size: 17px;
+    color: var(--ink);
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 10px 12px;
+  }
+  .qfield input { min-height: 44px; }
+  .qfield input:focus,
+  textarea:focus { outline: none; border-color: var(--accent); }
+  textarea.notes, textarea.assess {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  /* ---- notice / reference cards ---- */
+  .note-card {
+    background: var(--paper-2);
+    border-left: 3px solid var(--accent-soft);
+    padding: 14px 16px;
+    margin-top: 14px;
+  }
+  .note-card h3 {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+    font-weight: 500;
+  }
+  .note-card ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--ink-soft);
+    font-size: 16px;
+  }
+  .note-card li { margin-bottom: 4px; }
+
+  /* ---- day nav ---- */
+  .daynav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 36px;
+    gap: 12px;
+  }
+  .daynav button {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 16px;
+    min-height: 48px;
+    padding: 0 18px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .daynav button:disabled { color: var(--ink-faint); border-color: var(--paper-2); cursor: default; }
+  .daynav .today-btn { color: var(--accent); border-color: var(--accent); }
+
+  /* ---- week view ---- */
+  .week-tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 24px;
+  }
+  .week-tabs button {
+    flex: 1;
+    min-height: 44px;
+    background: none;
+    border: 1px solid var(--line);
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 2px;
+    padding: 6px 4px;
+  }
+  .week-tabs button.active {
+    border-color: var(--accent);
+    color: var(--ink);
+    background: var(--accent-soft);
+  }
+  table.days {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 22px;
+  }
+  table.days th {
+    text-align: left;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 4px;
+  }
+  table.days td {
+    border-bottom: 1px solid var(--line);
+    padding: 0;
+  }
+  table.days td .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 17px;
+    color: var(--ink);
+    text-align: left;
+    min-height: 48px;
+    padding: 6px 4px;
+    cursor: pointer;
+  }
+  table.days td .row .d-no { width: 70px; flex: 0 0 auto; }
+  table.days td .row .d-date { color: var(--ink-faint); font-size: 14px; flex: 1; }
+  table.days td .minibar {
+    width: 80px;
+    flex: 0 0 auto;
+    height: 5px;
+    background: var(--paper-2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  table.days td .minibar > i { display: block; height: 100%; background: var(--accent); }
+  table.days td .row .d-pct { width: 44px; text-align: right; font-size: 14px; color: var(--ink-soft); flex: 0 0 auto; }
+  tr.is-today .row .d-no { color: var(--accent); font-weight: 500; }
+
+  .save-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+  }
+  .save-note { font-size: 14px; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
+  .save-note.show { opacity: 1; }
+
+  /* ---- overview ---- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 22px;
+  }
+  .stat {
+    background: var(--paper);
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .stat .big { font-size: 28px; font-weight: 400; }
+  .stat .lbl { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin-top: 2px; }
+
+  .overall-bar { margin-top: 22px; }
+
+  .reference details {
+    border-bottom: 1px solid var(--line);
+    padding: 6px 0;
+  }
+  .reference summary {
+    cursor: pointer;
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 8px 0;
+    list-style: none;
+  }
+  .reference summary::-webkit-details-marker { display: none; }
+  .reference summary::before { content: "+ "; color: var(--accent); }
+  .reference details[open] summary::before { content: "– "; }
+  .reference ul { margin: 4px 0 12px; padding-left: 18px; color: var(--ink-soft); font-size: 16px; }
+  .reference li { margin-bottom: 6px; }
+
+  .closing {
+    margin-top: 30px;
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  /* ---- about ---- */
+  .about-lede {
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 16px;
+  }
+  .about-week {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .about-week .aw-label {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .about-week .aw-range {
+    font-size: 14px;
+    color: var(--ink-faint);
+  }
+  .about-week .aw-phase {
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  .danger-link {
+    background: none; border: none; color: var(--ink-faint);
+    font-family: inherit; font-size: 14px; cursor: pointer;
+    text-decoration: underline; padding: 4px 0; margin-top: 30px;
+  }
+
+  hr.soft { border: none; border-top: 1px solid var(--line); margin: 30px 0; }
+
+  /* ---- morning recalibration ---- */
+  .section-title .ex-time {
+    float: right;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    font-weight: 400;
+  }
+  .ex-intro { font-size: 15px; font-style: italic; margin: 8px 0 16px; }
+  .field-hint { font-size: 13px; color: var(--ink-faint); font-style: italic; margin-top: 4px; }
+
+  .pred-evening {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .outcome-pills { display: flex; gap: 4px; flex: 0 0 auto; }
+  .pill {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 13px;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 16px;
+    cursor: pointer;
+  }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pred-evening input[data-role="pred-happened"] {
+    flex: 1;
+    min-width: 160px;
+    font-family: inherit;
+    font-size: 15px;
+    font-style: italic;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--line);
+    color: var(--ink-soft);
+    padding: 4px 0;
+  }
+  .pred-evening input[data-role="pred-happened"]:focus { outline: none; border-bottom-color: var(--accent); }
+
+  .scenario {
+    background: var(--paper-2);
+    border-left: 3px solid var(--accent-soft);
+    padding: 12px 16px;
+    margin-top: 12px;
+    transition: border-color 0.2s;
+  }
+  .scenario.sat { border-left-color: var(--accent); }
+  .scenario .sc-stem { margin: 0 0 6px; }
+  .scenario .sc-res { margin: 0 0 6px; color: var(--accent); font-style: italic; }
+  .scenario .sc-check { min-height: 36px; padding: 4px 0; }
+  .scenario .sc-check span { font-size: 15px; color: var(--ink-soft); }
+
+  .custom-sc {
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+  details.own-sc { margin-top: 14px; }
+  details.own-sc > summary {
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--ink-soft);
+    list-style: none;
+  }
+  details.own-sc > summary::-webkit-details-marker { display: none; }
+  details.own-sc > summary::before { content: "+ "; color: var(--accent); }
+  details.own-sc[open] > summary::before { content: "– "; }
+</style>
+</head>
+<body>
+  <header class="topbar" id="topbar" hidden>
+    <div class="topbar-inner">
+      <div class="brand-row">
+        <div class="brand">Recovery · 3 Weeks</div>
+        <div class="sync" id="syncStatus"></div>
+      </div>
+      <nav class="views">
+        <button data-view="day">Day</button>
+        <button data-view="week">Week</button>
+        <button data-view="overview">Overview</button>
+        <button data-view="morning">Morning</button>
+        <button data-view="about">About</button>
+      </nav>
+    </div>
+    <div class="reconnect-banner" id="reconnectBanner" hidden>
+      <span>Your saved file needs permission again to keep syncing.</span>
+      <button id="reconnectBtn">Reconnect</button>
+    </div>
+    <div class="reconnect-banner" id="mReconnectBanner" hidden>
+      <span>Your saved morning file needs permission again to keep syncing.</span>
+      <button id="mReconnectBtn">Reconnect</button>
+    </div>
+  </header>
+
+  <main class="wrap" id="app"></main>
+
+<script>
+"use strict";
+
+/* ============================================================
+   PLAN DATA  (hardcoded from the 3-Week Burnout Recovery Plan)
+   ============================================================ */
+const SECTIONS = ["Morning", "Midday", "Afternoon", "Evening"];
+
+const WEEKS = {
+  1: {
+    title: "Deep Rest",
+    range: "Days 1–7",
+    phase: "Wake naturally. Move gently. Let the emergency mode fade.",
+    routine: {
+      Morning: [
+        "Wake naturally, no alarm",
+        "Glass of water",
+        "10–15 min gentle stretching or yoga (floor-based, nothing strenuous)",
+        "Morning recalibration exercises from the CBM/PP document (15 min)",
+        "Breakfast with protein (eggs, yogurt, tuna, whatever is easy)"
+      ],
+      Midday: [
+        "30–40 min walk, no destination, headphones optional",
+        "Lunch — simple, warm, real food",
+        "Nap if your body asks for it"
+      ],
+      Afternoon: [
+        "One low-effort enjoyable thing: cook something, listen to music, sit with a coffee, guitar if you feel like it",
+        "No screens for scrolling — music and podcasts fine, social media off"
+      ],
+      Evening: [
+        "Dinner — protein and vegetables",
+        "Prediction log: mark morning predictions, write the evening sentence",
+        "No work email, no Slack, no checking anything",
+        "Sleep when tired"
+      ]
+    },
+    weekTasks: [
+      "Find and book a craniosacral therapist — aim for first session by day 5–7",
+      "Research one therapist for psychological support — just research, no pressure to book yet"
+    ],
+    reminders: ["No planning about NZ, career, or future"],
+    markers: [
+      "Sleep starts feeling deeper by day 4–5",
+      "Crying may increase early in the week then taper",
+      "Morning stomach anxiety may lessen slightly",
+      "You might feel bored — that's good, it means the emergency mode is fading"
+    ]
+  },
+  2: {
+    title: "Gentle Reintroduction",
+    range: "Days 8–14",
+    phase: "A little more movement. One small task a day, only if it feels manageable.",
+    routine: {
+      Morning: [
+        "Wake naturally or set a soft alarm if rhythm is forming",
+        "Glass of water",
+        "15 min stretching or yoga — can be slightly more active this week",
+        "Morning recalibration exercises (15 min)",
+        "Breakfast with protein"
+      ],
+      Midday: [
+        "45–60 min walk, or swim if available (swimming is ideal — full body, low impact, soothing)",
+        "Lunch",
+        "One light bodyweight session — twice this week (squats, push-ups, planks; 15–20 min, stop before fatigue)"
+      ],
+      Afternoon: [
+        "One enjoyable activity: cook a new recipe, play guitar, sing, visit a park, sit near animals",
+        "One small task if energy allows: book the therapist, sort one admin thing, or a CS degree module — max one per day, only if manageable"
+      ],
+      Evening: [
+        "Dinner",
+        "Prediction log",
+        "Light reading or music",
+        "Sleep"
+      ]
+    },
+    weekTasks: [
+      "Craniosacral session (second appointment)",
+      "First therapy session if possible",
+      "One social outing — only if someone you actually like is available (not obligatory)"
+    ],
+    reminders: ["Still no NZ planning or work email"],
+    markers: [
+      "Sleep quality improving",
+      "Facial swelling may start reducing",
+      "Moments of spontaneous calm — brief, but new",
+      "Appetite may normalize",
+      "Guilt about resting should be quieter than week 1"
+    ]
+  },
+  3: {
+    title: "Rebuild Rhythm",
+    range: "Days 15–21",
+    phase: "A roughly consistent shape to the day. Light future-thinking, contained.",
+    routine: {
+      Morning: [
+        "Wake at a regular time (not rigid, but roughly consistent)",
+        "Glass of water",
+        "15 min stretching or yoga",
+        "Morning recalibration exercises (15 min)",
+        "Breakfast"
+      ],
+      Midday: [
+        "45–60 min walk or swim",
+        "One or two bodyweight sessions this week",
+        "Lunch"
+      ],
+      Afternoon: [
+        "Enjoyable activity — try to include singing or music at least twice this week",
+        "One small task: CS degree module, grooming course research, or a life admin item",
+        "Light future-thinking allowed — one 30-min window, then close the file"
+      ],
+      Evening: [
+        "Cook dinner slowly, with music on",
+        "Prediction log",
+        "Review: how does my body feel compared to day 1?",
+        "Sleep at a consistent time"
+      ]
+    },
+    weekTasks: [
+      "Craniosacral session (third appointment)",
+      "Therapy session (second, if started in week 2)",
+      "Pack and prepare for vacation — practical, not anxious",
+      "Write yourself a short note about how you want to feel during the vacation — an intention, not a plan"
+    ],
+    reminders: [],
+    markers: [
+      "Morning anxiety should be noticeably reduced",
+      "Concentration returning in short bursts",
+      "Body feels lighter",
+      "The vacation ahead feels like something to look forward to rather than another thing to manage"
+    ]
+  }
+};
+
+const COMMON_QUESTIONS = [
+  { id: "sleep", label: "Sleep quality last night?" },
+  { id: "energy", label: "Energy level 1–10?" },
+  { id: "skips", label: "Any skips and why?" }
+];
+const WEEK_QUESTIONS = {
+  1: { id: "anxiety", label: "Is morning anxiety lower than yesterday?" },
+  2: { id: "calm", label: "Any moments of spontaneous calm?" },
+  3: { id: "body", label: "How does body feel vs Day 1?" }
+};
+
+const AVOID = [
+  "Work email, Slack, or any work communication",
+  "Social media scrolling (delete apps from phone if needed)",
+  "Intense exercise before week 2",
+  "Using weed to manage boredom or anxiety — your brain needs REM sleep",
+  "Turning recovery into a performance with metrics",
+  "Planning the NZ move in detail (weeks 1–2), or more than 30 min/day (week 3)",
+  "Saying yes to social obligations that drain you"
+];
+const ALLOW = [
+  "Sleeping as much as you need",
+  "Crying without analyzing why",
+  "Doing nothing for hours",
+  "Cancelling anything that doesn't feel right",
+  "Eating well without restriction or guilt",
+  "Singing in your apartment",
+  "Being bored — it means your emergency system is finally powering down"
+];
+const CLOSING = "You go see your partner. Rested. Softer. In a body that's been cared for instead of driven. A different reunion than showing up depleted. Let the vacation be the next chapter — not another recovery, but the first taste of the life you're building.";
+
+const TOTAL_DAYS = 21;
+const STORAGE_KEY = "burnout_tracker";
+
+/* ============================================================
+   MORNING RECALIBRATION DATA  (from the CBM/PP exercises doc)
+   ============================================================ */
+const MORNING_STORAGE_KEY = "morning_tracker";
+
+const MORNING_INTRO = "These exercises retrain how your brain interprets ambiguous situations and updates predictions. Do them daily, ideally before checking messages or social media. Consistency matters more than intensity — a short daily practice rewires more effectively than occasional long sessions.";
+
+const PREDICTION_SLOTS = [
+  { key: "partner", label: "About your partner", placeholder: "e.g. He will send me a message before noon." },
+  { key: "work",    label: "About work or a task", placeholder: "e.g. The host will reply to my email today." },
+  { key: "neutral", label: "Neutral",              placeholder: "e.g. I will feel restless by mid-afternoon." }
+];
+const PREDICTION_OUTCOMES = [
+  { key: "confirmed", label: "Confirmed" },
+  { key: "partial",   label: "Partial" },
+  { key: "wrong",     label: "Wrong" }
+];
+
+const SCENARIOS_WEEK1 = [
+  { id: "w1-1", stem: "Your partner hasn't replied in four hours. He is probably…", resolution: "…absorbed in something and will reply when he surfaces, like he has every other time." },
+  { id: "w1-2", stem: "A friend cancels plans you were looking forward to. This means…", resolution: "…something came up in their life, and it has nothing to do with how they feel about me." },
+  { id: "w1-3", stem: "Your manager schedules an unexpected meeting with you. This is likely about…", resolution: "…a routine work matter or a project update." },
+  { id: "w1-4", stem: "You post something online and nobody responds for a day. The silence means…", resolution: "…people are busy and haven't seen it. Engagement is not a measure of my value." },
+  { id: "w1-5", stem: "Your partner mentions he had a good day but doesn't give details. He didn't elaborate because…", resolution: "…he's relaxed and gave the summary version, not because he's hiding something." },
+  { id: "w1-6", stem: "You notice your partner's tone is slightly flatter than usual on a call. The most likely reason is…", resolution: "…he's tired or distracted by something mundane." }
+];
+const SCENARIOS_WEEK2 = [
+  { id: "w2-1", stem: "You make a mistake at work and nobody comments on it. The silence means…", resolution: "…it was minor and nobody noticed or cared, because most mistakes are smaller than they feel." },
+  { id: "w2-2", stem: "Your partner says he's going somewhere you feel uneasy about. The fact that he told me…", resolution: "…is itself evidence of honesty. Someone hiding something doesn't announce it." },
+  { id: "w2-3", stem: "A colleague gets praised publicly and you don't. This means…", resolution: "…they did something visible this week. It says nothing about my competence or value." },
+  { id: "w2-4", stem: "You feel suddenly anxious for no clear reason. This feeling is…", resolution: "…my nervous system reacting to something below conscious awareness. It will pass. It is not a premonition." },
+  { id: "w2-5", stem: "You see someone's highlight reel on social media and feel inadequate. What I'm actually seeing is…", resolution: "…a curated fragment, not a life. My comparison is between their performance and my interior, which is never a fair measurement." },
+  { id: "w2-6", stem: "Your partner is at a location that triggers you and hasn't messaged. The most likely explanation, based on everything I know about this specific person, is…", resolution: "…he is busy, the situation is uncomfortable for him too, and he will reach out when he can." }
+];
+const SCENARIO_SETS = { 1: SCENARIOS_WEEK1, 2: SCENARIOS_WEEK2 };
+
+const CUSTOM_SCENARIO_INTRO = "From here on, use situations that actually trigger you. Write the threatening interpretation your brain generates first — don't suppress it — then the benign resolution based on available evidence. The exercise isn't denial; it's training your brain to generate the second interpretation automatically.";
+
+const AUDIT_FIELDS = [
+  { id: "situation",   label: "The relationship or situation generating anxiety", hint: "" },
+  { id: "predicting", label: "1. What is my brain predicting will go wrong?", hint: "" },
+  { id: "supports",   label: "2. What specific evidence supports that prediction?", hint: "Only actual evidence — not feelings, not “I just know,” not analogies to other people in other times." },
+  { id: "contradicts", label: "3. What specific evidence contradicts it?", hint: "" },
+  { id: "friend",     label: "4. If a friend described this exact situation, what would I tell them?", hint: "" },
+  { id: "probable",   label: "5. Based on the actual evidence, what is the most probable outcome?", hint: "" }
+];
+
+const SINGING_TEXT = "Not metaphorical. Sing one verse of anything you like — hum if you're not in the mood for words. This is vagal toning: it activates the parasympathetic nervous system through throat vibration and a long exhale. Do it after the written exercises, as a physical reset.";
+
+const EVENING_PROMPT = "Today, something my brain predicted did not happen. Specifically:";
+const MORNING_NOTES = [
+  "Expect resistance from the critical voice. It will say this is simplistic, or that you already know all this, or that real problems can't be solved by writing in a notebook. That voice is not a reliable advisor.",
+  "The exercises work through repetition, not insight. What's being trained is the automatic first response — the millisecond-level interpretation that fires before your conscious mind can intervene. That takes volume, not depth. Thirty days produces measurable change; sixty makes it durable. Don't skip days to do a longer session later — short and daily rewires faster than long and sporadic."
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = load();
+let currentView = "day";
+let currentDay = 1;
+let weekViewWeek = 1;
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return normalize(JSON.parse(raw));
+  } catch (e) { /* ignore */ }
+  return normalize({});
+}
+function normalize(s) {
+  s = s || {};
+  const days = s.days || {};
+  // ensure per-day shape + migrate legacy "skips" into per-item notes
+  for (const d in days) {
+    const day = days[d];
+    day.items = day.items || {};
+    day.questions = day.questions || {};
+    day.itemNotes = day.itemNotes || {};
+    if (typeof day.notes !== "string") day.notes = "";
+    if (day.skips) {
+      for (const k in day.skips) {
+        if (day.skips[k] && !day.itemNotes[k]) day.itemNotes[k] = day.skips[k];
+      }
+      delete day.skips;
+    }
+  }
+  // Rebuild with a deterministic, readable key order; itemIndex is the legend
+  // that lets each item ID in `days` be read without consulting the source.
+  return {
+    startDate: s.startDate || null,
+    itemIndex: buildItemIndex(),
+    days: days,
+    weekAssessments: s.weekAssessments || { 1: "", 2: "", 3: "" },
+    totalAssessment: s.totalAssessment || ""
+  };
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  scheduleFileWrite();
+}
+function ensureDay(d) {
+  if (!state.days[d]) state.days[d] = { items: {}, questions: {}, notes: "", itemNotes: {} };
+  const day = state.days[d];
+  day.items = day.items || {};
+  day.questions = day.questions || {};
+  day.itemNotes = day.itemNotes || {};
+  if (typeof day.notes !== "string") day.notes = "";
+  return day;
+}
+
+/* ============================================================
+   MORNING STATE  (separate store + separate morning.json file)
+   ============================================================ */
+let morningState = loadMorning();
+let morningDate = isoToday();   // ISO date string of the day being viewed
+
+function loadMorning() {
+  try {
+    const raw = localStorage.getItem(MORNING_STORAGE_KEY);
+    if (raw) return normalizeMorning(JSON.parse(raw));
+  } catch (e) { /* ignore */ }
+  return normalizeMorning({});
+}
+function normalizeMorning(s) {
+  s = s || {};
+  const days = s.days || {};
+  for (const k in days) days[k] = normalizeMorningDay(days[k]);
+  return {
+    kind: "morning_recalibration",
+    firstPracticeDate: s.firstPracticeDate || null,
+    days: days
+  };
+}
+function normalizeMorningDay(d) {
+  d = d || {};
+  const preds = Array.isArray(d.predictions) ? d.predictions : [];
+  return {
+    predictions: PREDICTION_SLOTS.map((slot, i) => {
+      const p = preds[i] || {};
+      return {
+        category: slot.key,
+        text: typeof p.text === "string" ? p.text : "",
+        outcome: typeof p.outcome === "string" ? p.outcome : "",
+        happened: typeof p.happened === "string" ? p.happened : ""
+      };
+    }),
+    scenarios: d.scenarios && typeof d.scenarios === "object" ? d.scenarios : {},
+    customScenarios: Array.isArray(d.customScenarios) ? d.customScenarios : [],
+    audit: d.audit && typeof d.audit === "object" ? d.audit : {},
+    sang: !!d.sang,
+    eveningClose: {
+      didNotHappen: d.eveningClose && typeof d.eveningClose.didNotHappen === "string" ? d.eveningClose.didNotHappen : "",
+      allAccurate: !!(d.eveningClose && d.eveningClose.allAccurate)
+    }
+  };
+}
+function saveMorning() {
+  try { localStorage.setItem(MORNING_STORAGE_KEY, JSON.stringify(morningState)); } catch (e) {}
+  scheduleMorningFileWrite();
+}
+function ensureMorningDay(iso) {
+  if (!morningState.days[iso]) morningState.days[iso] = normalizeMorningDay({});
+  return morningState.days[iso];
+}
+// Anchor the scenario-week progression to the first day the tool is used.
+function markMorningStarted() {
+  if (!morningState.firstPracticeDate) morningState.firstPracticeDate = isoToday();
+}
+
+/* ============================================================
+   DATE / DAY HELPERS
+   ============================================================ */
+function weekOf(day) { return Math.ceil(day / 7); }
+function isFirstDayOfWeek(day) { return (day - 1) % 7 === 0; }
+
+function midnightToday() {
+  const n = new Date();
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+function computeCurrentDay() {
+  if (!state.startDate) return 1;
+  const start = new Date(state.startDate);
+  const diff = Math.floor((midnightToday() - start) / 86400000) + 1;
+  return Math.max(1, Math.min(TOTAL_DAYS, diff));
+}
+function dateForDay(day) {
+  if (!state.startDate) return null;
+  const start = new Date(state.startDate);
+  const d = new Date(start.getTime());
+  d.setDate(d.getDate() + (day - 1));
+  return d;
+}
+function fmtDate(d) {
+  if (!d) return "";
+  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+}
+
+/* ---- calendar-date helpers for the open-ended morning log ---- */
+function isoDate(d) {
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+}
+function isoToday() { return isoDate(midnightToday()); }
+function dateFromIso(s) {
+  const p = String(s).split("-").map(Number);
+  return new Date(p[0], (p[1] || 1) - 1, p[2] || 1);
+}
+function shiftIso(iso, deltaDays) {
+  const d = dateFromIso(iso);
+  d.setDate(d.getDate() + deltaDays);
+  return isoDate(d);
+}
+function fmtLongDate(d) {
+  if (!d) return "";
+  return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+}
+// 1-based practice day number, anchored to firstPracticeDate (or today if unset).
+function practiceDayNumber(iso) {
+  const anchor = morningState.firstPracticeDate || isoToday();
+  const diff = Math.floor((dateFromIso(iso) - dateFromIso(anchor)) / 86400000) + 1;
+  return Math.max(1, diff);
+}
+// Scenario phase: 1 = Week 1 set (days 1–7), 2 = Week 2 set (8–14), 3 = your own (15+).
+function scenarioPhase(dayNo) { return dayNo <= 7 ? 1 : (dayNo <= 14 ? 2 : 3); }
+
+/* ============================================================
+   ITEM MODEL  (which items exist for a given day)
+   ============================================================ */
+// Single source of truth for item IDs — used by both itemsForDay and the legend
+function routineId(wk, sec, i) { return `w${wk}-${sec}-${i}`; }
+function taskId(wk, i) { return `w${wk}-task-${i}`; }
+
+function itemsForDay(day) {
+  const wk = weekOf(day);
+  const w = WEEKS[wk];
+  const out = []; // {id, label, section, isTask}
+  SECTIONS.forEach(sec => {
+    w.routine[sec].forEach((label, i) => {
+      out.push({ id: routineId(wk, sec, i), label, section: sec, isTask: false });
+    });
+  });
+  if (isFirstDayOfWeek(day)) {
+    w.weekTasks.forEach((label, i) => {
+      out.push({ id: taskId(wk, i), label, section: "This week", isTask: true });
+    });
+  }
+  return out;
+}
+
+// A readable legend mapping every item ID -> {week, section, position, label}.
+// Regenerated from WEEKS on every load so it can never drift from the plan.
+function buildItemIndex() {
+  const idx = {};
+  [1, 2, 3].forEach(wk => {
+    const w = WEEKS[wk];
+    SECTIONS.forEach(sec => {
+      w.routine[sec].forEach((label, i) => {
+        idx[routineId(wk, sec, i)] = { week: wk, section: sec, position: i, label };
+      });
+    });
+    w.weekTasks.forEach((label, i) => {
+      idx[taskId(wk, i)] = { week: wk, section: "This week", position: i, label };
+    });
+  });
+  return idx;
+}
+function completionForDay(day) {
+  const items = itemsForDay(day);
+  if (!items.length) return { done: 0, total: 0, pct: 0 };
+  const rec = state.days[day];
+  let done = 0;
+  if (rec && rec.items) items.forEach(it => { if (rec.items[it.id]) done++; });
+  return { done, total: items.length, pct: Math.round((done / items.length) * 100) };
+}
+
+/* ============================================================
+   ESCAPING
+   ============================================================ */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+function autoGrow(el) {
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+
+/* ============================================================
+   RENDER ROOT
+   ============================================================ */
+const app = document.getElementById("app");
+const topbar = document.getElementById("topbar");
+
+function render() {
+  if (!state.startDate) { renderStart(); return; }
+  topbar.hidden = false;
+  document.querySelectorAll("nav.views button").forEach(b => {
+    b.classList.toggle("active", b.dataset.view === currentView);
+  });
+  if (currentView === "day") renderDay();
+  else if (currentView === "week") renderWeek();
+  else if (currentView === "morning") renderMorning();
+  else if (currentView === "about") renderAbout();
+  else renderOverview();
+  updateSyncUI();
+  updateMorningSyncUI();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- START SCREEN ---------- */
+function renderStart() {
+  topbar.hidden = true;
+  const today = midnightToday();
+  const iso = today.getFullYear() + "-" +
+    String(today.getMonth() + 1).padStart(2, "0") + "-" +
+    String(today.getDate()).padStart(2, "0");
+  app.innerHTML = `
+    <div class="start">
+      <div class="brand" style="margin-bottom:18px;">Recovery · 3 Weeks</div>
+      <h1>Three weeks to come back to yourself</h1>
+      <p class="lede">Deep rest, then a gentle return. No decisions to make — each day, just follow the list. When you're ready, begin.</p>
+      <button class="btn" id="startToday">Start Day 1 today</button>
+      <div class="alt">
+        <div>Already started earlier?</div>
+        <input type="date" id="startDatePick" value="${iso}" max="${iso}" />
+        <div style="margin-top:10px;"><button class="btn ghost" id="startPicked">Use this start date</button></div>
+      </div>
+      ${FS_SUPPORTED ? `<div class="alt">
+        <div>Have a saved recovery file?</div>
+        <div style="margin-top:10px;"><button class="btn ghost" id="loadFile">Load from a JSON file</button></div>
+      </div>` : ``}
+    </div>`;
+  document.getElementById("startToday").addEventListener("click", () => begin(today));
+  document.getElementById("startPicked").addEventListener("click", () => {
+    const v = document.getElementById("startDatePick").value;
+    if (!v) return;
+    const parts = v.split("-").map(Number);
+    begin(new Date(parts[0], parts[1] - 1, parts[2]));
+  });
+  const loadBtn = document.getElementById("loadFile");
+  if (loadBtn) loadBtn.addEventListener("click", connectFile);
+}
+function begin(dateObj) {
+  state.startDate = dateObj.toISOString();
+  save();
+  currentView = "day";
+  currentDay = computeCurrentDay();
+  render();
+}
+
+/* ---------- DAY VIEW ---------- */
+function renderDay() {
+  const day = currentDay;
+  const wk = weekOf(day);
+  const w = WEEKS[wk];
+  const rec = ensureDay(day);
+  const items = itemsForDay(day);
+  const comp = completionForDay(day);
+  const dateStr = fmtDate(dateForDay(day));
+  const todayNum = computeCurrentDay();
+
+  // group items by section
+  const grouped = {};
+  items.forEach(it => { (grouped[it.section] = grouped[it.section] || []).push(it); });
+  const order = SECTIONS.concat(isFirstDayOfWeek(day) ? ["This week"] : []);
+
+  let html = `
+    <div class="dayhead">
+      <div class="week-label">Week ${wk} · ${esc(w.title)}</div>
+      <h1>Day ${day}</h1>
+      ${dateStr ? `<div class="date">${esc(dateStr)}</div>` : ""}
+      <div class="phase">${esc(w.phase)}</div>
+    </div>
+
+    <div class="progress">
+      <div class="bar"><i id="dayBar" style="width:${comp.pct}%"></i></div>
+      <div class="pct" id="dayPct">${comp.done} of ${comp.total} · ${comp.pct}%</div>
+    </div>
+  `;
+
+  order.forEach(sec => {
+    const list = grouped[sec];
+    if (!list || !list.length) return;
+    html += `<div class="section"><div class="section-title">${esc(sec)}</div>`;
+    list.forEach(it => {
+      const checked = !!rec.items[it.id];
+      const note = rec.itemNotes[it.id] || "";
+      html += `
+        <div class="item ${checked ? "done" : ""} ${it.isTask ? "week-task" : ""}" data-id="${it.id}">
+          <label class="check">
+            <input type="checkbox" data-role="item" data-id="${it.id}" ${checked ? "checked" : ""} />
+            <span>${esc(it.label)}</span>
+          </label>
+          <textarea class="item-note" data-role="note" data-id="${it.id}" rows="1"
+                    placeholder="${checked ? "how did it go? (optional)" : "notes — why skipped, or anything to remember?"}">${esc(note)}</textarea>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+
+  // tracked questions
+  const qs = COMMON_QUESTIONS.concat([WEEK_QUESTIONS[wk]]);
+  html += `<div class="section"><div class="section-title">Check-in</div>`;
+  qs.forEach(q => {
+    const val = rec.questions[q.id] || "";
+    html += `
+      <div class="qfield">
+        <label for="q-${q.id}">${esc(q.label)}</label>
+        <input id="q-${q.id}" type="text" data-role="question" data-qid="${q.id}" value="${esc(val)}" />
+      </div>`;
+  });
+  html += `</div>`;
+
+  // notes
+  html += `
+    <div class="section">
+      <div class="section-title">Notes</div>
+      <textarea class="notes" data-role="notes" placeholder="Anything you want to remember about today…">${esc(rec.notes)}</textarea>
+    </div>`;
+
+  // markers + reminders notice (not tracked)
+  html += `<div class="note-card"><h3>Markers to notice this week</h3><ul>`;
+  w.markers.forEach(m => { html += `<li>${esc(m)}</li>`; });
+  html += `</ul></div>`;
+  if (w.reminders.length) {
+    html += `<div class="note-card"><h3>Gently, this week</h3><ul>`;
+    w.reminders.forEach(r => { html += `<li>${esc(r)}</li>`; });
+    html += `</ul></div>`;
+  }
+
+  // day nav
+  html += `
+    <div class="daynav">
+      <button id="prevDay" ${day <= 1 ? "disabled" : ""}>‹ Day ${day - 1 || ""}</button>
+      ${day !== todayNum ? `<button class="today-btn" id="goToday">Today · Day ${todayNum}</button>` : `<span class="faint" style="font-size:14px;">Today</span>`}
+      <button id="nextDay" ${day >= TOTAL_DAYS ? "disabled" : ""}>Day ${day + 1 <= TOTAL_DAYS ? day + 1 : ""} ›</button>
+    </div>`;
+
+  app.innerHTML = html;
+  bindDay(day);
+}
+
+function bindDay(day) {
+  const rec = ensureDay(day);
+
+  app.querySelectorAll('[data-role="item"]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.id;
+      const itemEl = cb.closest(".item");
+      if (cb.checked) {
+        rec.items[id] = true;
+        itemEl.classList.add("done");
+      } else {
+        delete rec.items[id];
+        itemEl.classList.remove("done");
+      }
+      const noteEl = itemEl.querySelector(".item-note");
+      if (noteEl) noteEl.placeholder = cb.checked
+        ? "how did it go? (optional)"
+        : "notes — why skipped, or anything to remember?";
+      save();
+      updateDayProgress(day);
+    });
+  });
+
+  app.querySelectorAll('[data-role="note"]').forEach(inp => {
+    autoGrow(inp);
+    inp.addEventListener("input", () => {
+      const id = inp.dataset.id;
+      const v = inp.value;
+      if (v) rec.itemNotes[id] = v; else delete rec.itemNotes[id];
+      autoGrow(inp);
+      save();
+    });
+  });
+
+  app.querySelectorAll('[data-role="question"]').forEach(inp => {
+    inp.addEventListener("input", () => {
+      const qid = inp.dataset.qid;
+      const v = inp.value;
+      if (v) rec.questions[qid] = v; else delete rec.questions[qid];
+      save();
+    });
+  });
+
+  const notes = app.querySelector('[data-role="notes"]');
+  if (notes) notes.addEventListener("input", () => { rec.notes = notes.value; save(); });
+
+  const prev = document.getElementById("prevDay");
+  if (prev) prev.addEventListener("click", () => { if (currentDay > 1) { currentDay--; render(); } });
+  const next = document.getElementById("nextDay");
+  if (next) next.addEventListener("click", () => { if (currentDay < TOTAL_DAYS) { currentDay++; render(); } });
+  const tdy = document.getElementById("goToday");
+  if (tdy) tdy.addEventListener("click", () => { currentDay = computeCurrentDay(); render(); });
+}
+
+function updateDayProgress(day) {
+  const comp = completionForDay(day);
+  const bar = document.getElementById("dayBar");
+  const pct = document.getElementById("dayPct");
+  if (bar) bar.style.width = comp.pct + "%";
+  if (pct) pct.textContent = `${comp.done} of ${comp.total} · ${comp.pct}%`;
+}
+
+/* ---------- WEEK VIEW ---------- */
+function renderWeek() {
+  const wk = weekViewWeek;
+  const w = WEEKS[wk];
+  const todayNum = computeCurrentDay();
+  const startDay = (wk - 1) * 7 + 1;
+
+  let html = `
+    <div class="dayhead">
+      <div class="week-label">Week ${wk} · ${esc(w.title)}</div>
+      <h1>${esc(w.range)}</h1>
+      <div class="phase">${esc(w.phase)}</div>
+    </div>
+    <div class="week-tabs">
+      ${[1, 2, 3].map(n => `<button data-week="${n}" class="${n === wk ? "active" : ""}">Week ${n}</button>`).join("")}
+    </div>
+    <table class="days">
+      <thead><tr><th>Day</th><th></th><th></th><th></th></tr></thead>
+      <tbody>`;
+  for (let i = 0; i < 7; i++) {
+    const day = startDay + i;
+    const comp = completionForDay(day);
+    const dateStr = fmtDate(dateForDay(day));
+    html += `
+      <tr class="${day === todayNum ? "is-today" : ""}">
+        <td colspan="4">
+          <button class="row" data-day="${day}">
+            <span class="d-no">Day ${day}</span>
+            <span class="d-date">${esc(dateStr)}</span>
+            <span class="minibar"><i style="width:${comp.pct}%"></i></span>
+            <span class="d-pct">${comp.pct}%</span>
+          </button>
+        </td>
+      </tr>`;
+  }
+  html += `</tbody></table>`;
+
+  html += `
+    <div class="section">
+      <div class="section-title">Week ${wk} assessment</div>
+      <textarea class="assess" id="weekAssess" placeholder="Looking back on this week — what shifted, what was hard, what you noticed…">${esc(state.weekAssessments[wk] || "")}</textarea>
+      <div class="save-row">
+        <button class="btn" id="saveWeek">Save assessment</button>
+        <span class="save-note" id="weekSaved">Saved</span>
+      </div>
+    </div>`;
+
+  app.innerHTML = html;
+
+  app.querySelectorAll(".week-tabs button").forEach(b => {
+    b.addEventListener("click", () => { weekViewWeek = Number(b.dataset.week); render(); });
+  });
+  app.querySelectorAll(".row[data-day]").forEach(r => {
+    r.addEventListener("click", () => { currentDay = Number(r.dataset.day); currentView = "day"; render(); });
+  });
+  document.getElementById("saveWeek").addEventListener("click", () => {
+    state.weekAssessments[wk] = document.getElementById("weekAssess").value;
+    save();
+    const n = document.getElementById("weekSaved");
+    n.classList.add("show");
+    setTimeout(() => n.classList.remove("show"), 1600);
+  });
+}
+
+/* ---------- OVERVIEW ---------- */
+function renderOverview() {
+  // stats
+  let started = 0, totalChecked = 0, totalItems = 0;
+  const weekPct = { 1: [], 2: [], 3: [] };
+  for (let d = 1; d <= TOTAL_DAYS; d++) {
+    const comp = completionForDay(d);
+    if (state.days[d] && (Object.keys(state.days[d].items).length || (state.days[d].notes && state.days[d].notes.length) ||
+        Object.keys(state.days[d].questions).length)) started++;
+    totalChecked += comp.done;
+    totalItems += comp.total;
+    weekPct[weekOf(d)].push(comp.pct);
+  }
+  const overallPct = totalItems ? Math.round((totalChecked / totalItems) * 100) : 0;
+  const avg = arr => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
+
+  let html = `
+    <div class="dayhead">
+      <div class="week-label">Overview</div>
+      <h1>The whole journey</h1>
+      <div class="phase">Started ${esc(fmtDate(dateForDay(1)))} · Day ${computeCurrentDay()} today</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="big">${started}</div><div class="lbl">Days touched</div></div>
+      <div class="stat"><div class="big">${overallPct}%</div><div class="lbl">Items done</div></div>
+      <div class="stat"><div class="big">${totalChecked}</div><div class="lbl">Checked</div></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="big">${avg(weekPct[1])}%</div><div class="lbl">Week 1</div></div>
+      <div class="stat"><div class="big">${avg(weekPct[2])}%</div><div class="lbl">Week 2</div></div>
+      <div class="stat"><div class="big">${avg(weekPct[3])}%</div><div class="lbl">Week 3</div></div>
+    </div>
+
+    <div class="overall-bar progress">
+      <div class="bar"><i style="width:${overallPct}%"></i></div>
+      <div class="pct">${totalChecked} of ${totalItems} items across 21 days</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Whole-plan reflection</div>
+      <textarea class="assess" id="totalAssess" placeholder="How does your body feel compared to Day 1? What did these three weeks give you?">${esc(state.totalAssessment)}</textarea>
+    </div>
+
+    <div class="section reference">
+      <div class="section-title">Reference</div>
+      <details><summary>What to avoid — all three weeks</summary><ul>${AVOID.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details>
+      <details><summary>What to allow — all three weeks</summary><ul>${ALLOW.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details>
+    </div>
+
+    <div class="closing">${esc(CLOSING)}</div>
+
+    <hr class="soft" />
+    <div class="section" style="margin-top:0;">
+      <div class="section-title">Local file</div>
+      <p class="fs-status" id="fsStatus"></p>
+      <div class="save-row" id="fsButtons"></div>
+    </div>
+    <div class="save-row">
+      <button class="btn ghost" id="exportBtn">Export JSON</button>
+    </div>
+    <button class="danger-link" id="resetBtn">Reset all data and start over</button>
+  `;
+
+  app.innerHTML = html;
+
+  document.getElementById("totalAssess").addEventListener("input", e => {
+    state.totalAssessment = e.target.value; save();
+  });
+  document.getElementById("exportBtn").addEventListener("click", exportJSON);
+
+  // file-sync buttons
+  const fsBtns = document.getElementById("fsButtons");
+  if (FS_SUPPORTED) {
+    if (fileHandle) {
+      fsBtns.innerHTML = '<button class="btn ghost" id="fsChange">Change file</button>' +
+        '<button class="danger-link" id="fsDisconnect" style="margin:0;">Disconnect</button>';
+    } else if (pendingHandle) {
+      fsBtns.innerHTML = '<button class="btn" id="fsReconnect">Reconnect file</button>';
+    } else {
+      fsBtns.innerHTML = '<button class="btn" id="fsConnect">Connect a JSON file</button>';
+    }
+  } else {
+    fsBtns.innerHTML = '';
+  }
+  const bindIf = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener("click", fn); };
+  bindIf("fsConnect", connectFile);
+  bindIf("fsChange", connectFile);
+  bindIf("fsReconnect", reconnectFile);
+  bindIf("fsDisconnect", disconnectFile);
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    if (confirm("This will erase all your tracked days, notes, and assessments. Are you sure?")) {
+      localStorage.removeItem(STORAGE_KEY);
+      state = normalize({});
+      currentView = "day";
+      render();
+    }
+  });
+}
+
+/* ---------- ABOUT (read-only welcome context, available any time) ---------- */
+function renderAbout() {
+  let html = `
+    <div class="dayhead">
+      <div class="week-label">About</div>
+      <h1>Three weeks to come back to yourself</h1>
+      <div class="phase">Deep rest, then a gentle return.</div>
+    </div>
+
+    <p class="about-lede">No decisions to make — each day, just follow the list. The plan moves in three phases, from deep rest into a gentle return.</p>
+
+    <div class="section">
+      <div class="section-title">The arc</div>`;
+  [1, 2, 3].forEach(wk => {
+    const w = WEEKS[wk];
+    html += `
+      <div class="about-week">
+        <div class="aw-label">Week ${wk} · ${esc(w.title)}</div>
+        <div class="aw-range">${esc(w.range)}</div>
+        <div class="aw-phase">${esc(w.phase)}</div>
+      </div>`;
+  });
+  html += `</div>
+
+    <div class="closing">${esc(CLOSING)}</div>`;
+
+  app.innerHTML = html;
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "burnout_tracker.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ============================================================
+   LOCAL FILE SYNC  (File System Access API + IndexedDB handle)
+   ============================================================ */
+const FS_SUPPORTED = typeof window !== "undefined" && "showSaveFilePicker" in window;
+let fileHandle = null;     // active, permission-granted handle
+let pendingHandle = null;  // stored handle awaiting re-permission
+let fileName = "";
+let syncState = "none";    // none | saving | saved | error | reconnect
+let writeTimer = null;
+
+function setSync(s) { syncState = s; updateSyncUI(); }
+
+function fsStatusText() {
+  if (!FS_SUPPORTED) return "This browser can't auto-sync to a file. Your data is saved in this browser — use Export JSON to back it up. (Auto-sync works in Chrome and Edge.)";
+  if (fileHandle) return "Auto-syncing every change to “" + fileName + "”. Your data lives in that file on disk.";
+  if (pendingHandle) return "A saved file is linked but needs permission again. Click Reconnect to resume syncing.";
+  return "Pick a JSON file to auto-save your data to disk — the app keeps it updated on every change.";
+}
+
+function updateSyncUI() {
+  const banner = document.getElementById("reconnectBanner");
+  if (banner) banner.hidden = !(syncState === "reconnect" || (pendingHandle && !fileHandle));
+  const el = document.getElementById("syncStatus");
+  if (el) {
+    let t = "";
+    if (fileHandle) {
+      if (syncState === "saving") t = "⋯ saving…";
+      else if (syncState === "error") t = "⚠ save failed";
+      else t = "● " + fileName;
+    } else if (pendingHandle) {
+      t = "⚠ reconnect file";
+    }
+    el.textContent = t;
+    el.className = "sync" + (syncState === "error" ? " err" : "");
+  }
+  const ov = document.getElementById("fsStatus");
+  if (ov) ov.textContent = fsStatusText();
+}
+
+function scheduleFileWrite() {
+  if (!fileHandle) return;
+  clearTimeout(writeTimer);
+  setSync("saving");
+  writeTimer = setTimeout(() => writeFile(false), 500);
+}
+
+async function writeFile(canPrompt) {
+  if (!fileHandle) return;
+  try {
+    let perm = await fileHandle.queryPermission({ mode: "readwrite" });
+    if (perm !== "granted" && canPrompt) perm = await fileHandle.requestPermission({ mode: "readwrite" });
+    if (perm !== "granted") { setSync("reconnect"); return; }
+    const w = await fileHandle.createWritable();
+    await w.write(JSON.stringify(state, null, 2));
+    await w.close();
+    setSync("saved");
+  } catch (e) {
+    setSync("error");
+  }
+}
+
+async function loadFromFile() {
+  try {
+    const f = await fileHandle.getFile();
+    if (f.size > 0) {
+      const parsed = JSON.parse(await f.text());
+      if (parsed && typeof parsed === "object" && "startDate" in parsed) {
+        state = normalize(parsed);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+      }
+    }
+    fileName = fileHandle.name;
+    setSync("saved");
+  } catch (e) {
+    setSync("error");
+  }
+}
+
+async function connectFile() {
+  if (!FS_SUPPORTED) return;
+  let handle;
+  try {
+    handle = await window.showSaveFilePicker({
+      suggestedName: "recovery.json",
+      types: [{ description: "JSON file", accept: { "application/json": [".json"] } }]
+    });
+  } catch (e) { return; } // user cancelled
+
+  let loaded = false;
+  try {
+    const f = await handle.getFile();
+    if (f.size > 0) {
+      const parsed = JSON.parse(await f.text());
+      if (parsed && typeof parsed === "object" && parsed.startDate) {
+        const fresh = !state.startDate;
+        if (fresh || confirm("This file already contains saved data.\n\nOK = load it into this browser (replaces current data).\nCancel = overwrite the file with your current data.")) {
+          state = normalize(parsed);
+          loaded = true;
+        }
+      }
+    }
+  } catch (e) { /* empty or unreadable — we'll overwrite */ }
+
+  fileHandle = handle;
+  pendingHandle = null;
+  fileName = handle.name;
+  try { await storeHandle(handle); } catch (e) {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  await writeFile(true);
+  if (loaded) { currentView = "day"; currentDay = computeCurrentDay(); }
+  render();
+}
+
+async function reconnectFile() {
+  const h = fileHandle || pendingHandle;
+  if (!h) return;
+  try {
+    const perm = await h.requestPermission({ mode: "readwrite" });
+    if (perm === "granted") {
+      fileHandle = h;
+      pendingHandle = null;
+      fileName = h.name;
+      await loadFromFile();
+      currentDay = computeCurrentDay();
+      render();
+    }
+  } catch (e) {}
+}
+
+async function disconnectFile() {
+  fileHandle = null;
+  pendingHandle = null;
+  fileName = "";
+  setSync("none");
+  try { await clearHandle(); } catch (e) {}
+  render();
+}
+
+/* ---- IndexedDB: persist the file handle across sessions ---- */
+function idb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open("recovery_fs", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("handles");
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function storeHandle(h) {
+  const db = await idb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("handles", "readwrite");
+    tx.objectStore("handles").put(h, "file");
+    tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+  });
+}
+async function getStoredHandle() {
+  const db = await idb();
+  return new Promise(res => {
+    const tx = db.transaction("handles", "readonly");
+    const rq = tx.objectStore("handles").get("file");
+    rq.onsuccess = () => res(rq.result || null);
+    rq.onerror = () => res(null);
+  });
+}
+async function clearHandle() {
+  const db = await idb();
+  return new Promise(res => {
+    const tx = db.transaction("handles", "readwrite");
+    tx.objectStore("handles").delete("file");
+    tx.oncomplete = res; tx.onerror = res;
+  });
+}
+
+/* ============================================================
+   MORNING VIEW
+   ============================================================ */
+// Non-persisting read: returns the stored day or a fresh default without
+// creating an empty record (so merely viewing a day doesn't "touch" it).
+function getMorningDay(iso) {
+  return morningState.days[iso] || normalizeMorningDay({});
+}
+function morningCompletion(iso) {
+  const rec = getMorningDay(iso);
+  const phase = scenarioPhase(practiceDayNumber(iso));
+  let done = 0;
+  const total = 4;
+  if (rec.predictions.every(p => p.text.trim())) done++;
+  if (phase === 3) {
+    if (rec.customScenarios.some(c => (c.trigger || "").trim() && (c.benign || "").trim())) done++;
+  } else {
+    if (SCENARIO_SETS[phase].every(sc => rec.scenarios[sc.id])) done++;
+  }
+  if (AUDIT_FIELDS.every(f => (rec.audit[f.id] || "").trim())) done++;
+  if (rec.sang) done++;
+  return { done, total, pct: Math.round((done / total) * 100) };
+}
+
+function customScenariosHtml(rec) {
+  let html = "";
+  rec.customScenarios.forEach((c, i) => {
+    html += `
+      <div class="custom-sc" data-i="${i}">
+        <div class="qfield">
+          <label>Trigger / situation</label>
+          <input data-role="cs-trigger" data-i="${i}" value="${esc(c.trigger || "")}" placeholder="what set it off" />
+        </div>
+        <div class="qfield">
+          <label>The threatening interpretation — write it, don't suppress it</label>
+          <textarea class="assess" data-role="cs-threat" data-i="${i}" rows="1">${esc(c.threat || "")}</textarea>
+        </div>
+        <div class="qfield">
+          <label>The benign resolution, based on available evidence</label>
+          <textarea class="assess" data-role="cs-benign" data-i="${i}" rows="1">${esc(c.benign || "")}</textarea>
+        </div>
+        <button class="danger-link" data-role="cs-remove" data-i="${i}" style="margin:0 0 8px;">Remove this scenario</button>
+      </div>`;
+  });
+  html += `<button class="btn ghost" id="csAdd">+ Add your own scenario</button>`;
+  return html;
+}
+
+function renderMorning() {
+  const iso = morningDate;
+  const rec = getMorningDay(iso);
+  const dayNo = practiceDayNumber(iso);
+  const phase = scenarioPhase(dayNo);
+  const comp = morningCompletion(iso);
+  const today = isoToday();
+  const isToday = iso === today;
+
+  let html = `
+    <div class="dayhead">
+      <div class="week-label">Morning Recalibration · 15 min</div>
+      <h1>${esc(fmtLongDate(dateFromIso(iso)))}</h1>
+      <div class="date">Practice day ${dayNo}${isToday ? " · today" : ""} <span class="sync" id="morningSyncStatus"></span></div>
+      <div class="phase">Before messages or social media. Consistency matters more than intensity.</div>
+    </div>
+
+    <div class="daynav" style="margin-top:16px;">
+      <button id="mPrevDay">‹ ${esc(fmtDate(dateFromIso(shiftIso(iso, -1))))}</button>
+      ${isToday ? `<span class="faint" style="font-size:14px;">Today</span>` : `<button class="today-btn" id="mToday">Today</button>`}
+      <button id="mNextDay" ${iso >= today ? "disabled" : ""}>${esc(fmtDate(dateFromIso(shiftIso(iso, 1))))} ›</button>
+    </div>
+
+    <div class="progress">
+      <div class="bar"><i id="mBar" style="width:${comp.pct}%"></i></div>
+      <div class="pct" id="mPct">${comp.done} of ${comp.total} exercises · ${comp.pct}%</div>
+    </div>`;
+
+  /* Exercise 1 — Prediction Log */
+  html += `
+    <div class="section">
+      <div class="section-title">Exercise 1 · Prediction Log <span class="ex-time">3 min</span></div>
+      <p class="muted ex-intro">Three specific, testable predictions for the day ahead. Don't judge them — just write. Mark outcomes tonight in the Evening Close.</p>`;
+  rec.predictions.forEach((p, i) => {
+    const slot = PREDICTION_SLOTS[i];
+    html += `
+      <div class="qfield pred" data-i="${i}">
+        <label>${esc(slot.label)}</label>
+        <input data-role="pred-text" data-i="${i}" value="${esc(p.text)}" placeholder="${esc(slot.placeholder)}" />
+        <div class="pred-evening">
+          <div class="outcome-pills" data-i="${i}">
+            ${PREDICTION_OUTCOMES.map(o => `<button type="button" class="pill ${p.outcome === o.key ? "active" : ""}" data-role="pred-outcome" data-i="${i}" data-outcome="${o.key}">${esc(o.label)}</button>`).join("")}
+          </div>
+          <input data-role="pred-happened" data-i="${i}" value="${esc(p.happened)}" placeholder="what actually happened (tonight)" />
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  /* Exercise 2 — Ambiguous Scenarios */
+  html += `
+    <div class="section">
+      <div class="section-title">Exercise 2 · Ambiguous Scenarios <span class="ex-time">5 min</span></div>`;
+  if (phase === 3) {
+    html += `<p class="muted ex-intro">${esc(CUSTOM_SCENARIO_INTRO)}</p>${customScenariosHtml(rec)}`;
+  } else {
+    html += `<p class="muted ex-intro">Read each one. Notice your mind's first interpretation, then sit with the benign resolution for a few seconds. (Week ${phase} set)</p>`;
+    SCENARIO_SETS[phase].forEach(sc => {
+      const checked = !!rec.scenarios[sc.id];
+      html += `
+        <div class="scenario ${checked ? "sat" : ""}">
+          <p class="sc-stem">${esc(sc.stem)}</p>
+          <p class="sc-res">${esc(sc.resolution)}</p>
+          <label class="check sc-check"><input type="checkbox" data-role="scenario" data-id="${sc.id}" ${checked ? "checked" : ""} /><span>I sat with this</span></label>
+        </div>`;
+    });
+    html += `<details class="own-sc"><summary>Add your own scenarios (optional)</summary><div style="padding-top:8px;">${customScenariosHtml(rec)}</div></details>`;
+  }
+  html += `</div>`;
+
+  /* Exercise 3 — Evidence Audit */
+  html += `
+    <div class="section">
+      <div class="section-title">Exercise 3 · Evidence Audit <span class="ex-time">5 min</span></div>
+      <p class="muted ex-intro">Pick one relationship or situation that currently generates anxiety. Answer in writing.</p>`;
+  AUDIT_FIELDS.forEach(f => {
+    const val = rec.audit[f.id] || "";
+    html += `<div class="qfield">
+        <label>${esc(f.label)}</label>
+        ${f.id === "situation"
+          ? `<input data-role="audit" data-aid="${f.id}" value="${esc(val)}" />`
+          : `<textarea class="assess" data-role="audit" data-aid="${f.id}" rows="1">${esc(val)}</textarea>`}
+        ${f.hint ? `<div class="field-hint">${esc(f.hint)}</div>` : ""}
+      </div>`;
+  });
+  html += `</div>`;
+
+  /* Exercise 4 — Singing */
+  html += `
+    <div class="section">
+      <div class="section-title">Exercise 4 · Singing <span class="ex-time">2 min</span></div>
+      <div class="item ${rec.sang ? "done" : ""}">
+        <label class="check"><input type="checkbox" data-role="sang" ${rec.sang ? "checked" : ""} /><span>Sang or hummed one verse</span></label>
+      </div>
+      <p class="muted ex-intro">${esc(SINGING_TEXT)}</p>
+    </div>`;
+
+  /* Evening Close */
+  html += `
+    <div class="section">
+      <div class="section-title">Evening Close · 2 min</div>
+      <p class="muted ex-intro">Before sleep, go back up to the Prediction Log and mark each outcome. Then complete this sentence.</p>
+      <div class="qfield">
+        <label>${esc(EVENING_PROMPT)}</label>
+        <textarea class="assess" data-role="evening-text" rows="1">${esc(rec.eveningClose.didNotHappen)}</textarea>
+      </div>
+      <div class="item ${rec.eveningClose.allAccurate ? "done" : ""}">
+        <label class="check"><input type="checkbox" data-role="evening-accurate" ${rec.eveningClose.allAccurate ? "checked" : ""} /><span>My predictions were accurate today</span></label>
+      </div>
+    </div>`;
+
+  /* Reference */
+  html += `
+    <div class="section reference">
+      <div class="section-title">About this practice</div>
+      <details><summary>Why these exercises</summary><p class="muted" style="padding:6px 0;">${esc(MORNING_INTRO)}</p>${MORNING_NOTES.map(n => `<p class="muted" style="padding:6px 0;">${esc(n)}</p>`).join("")}</details>
+    </div>`;
+
+  /* Local file */
+  html += `
+    <hr class="soft" />
+    <div class="section" style="margin-top:0;">
+      <div class="section-title">Morning log file</div>
+      <p class="fs-status" id="morningFsStatus"></p>
+      <div class="save-row" id="morningFsButtons"></div>
+    </div>
+    <div class="save-row">
+      <button class="btn ghost" id="morningExportBtn">Export JSON</button>
+    </div>`;
+
+  app.innerHTML = html;
+  bindMorning(iso);
+  updateMorningSyncUI();
+}
+
+function bindMorning(iso) {
+  const get = () => ensureMorningDay(iso);   // persisting accessor for edits
+  const touch = () => { markMorningStarted(); saveMorning(); updateMorningProgress(iso); };
+
+  // Exercise 1 — predictions
+  app.querySelectorAll('[data-role="pred-text"]').forEach(inp => {
+    inp.addEventListener("input", () => { get().predictions[+inp.dataset.i].text = inp.value; touch(); });
+  });
+  app.querySelectorAll('[data-role="pred-happened"]').forEach(inp => {
+    inp.addEventListener("input", () => { get().predictions[+inp.dataset.i].happened = inp.value; touch(); });
+  });
+  app.querySelectorAll('[data-role="pred-outcome"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const i = +btn.dataset.i, o = btn.dataset.outcome;
+      const pred = get().predictions[i];
+      pred.outcome = pred.outcome === o ? "" : o;   // toggle off if re-clicked
+      btn.parentElement.querySelectorAll(".pill").forEach(p => {
+        p.classList.toggle("active", p.dataset.outcome === pred.outcome);
+      });
+      touch();
+    });
+  });
+
+  // Exercise 2 — preset scenarios
+  app.querySelectorAll('[data-role="scenario"]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      const id = cb.dataset.id;
+      if (cb.checked) get().scenarios[id] = true; else delete get().scenarios[id];
+      cb.closest(".scenario").classList.toggle("sat", cb.checked);
+      touch();
+    });
+  });
+  // Exercise 2 — custom scenarios
+  app.querySelectorAll('[data-role="cs-trigger"]').forEach(inp => {
+    inp.addEventListener("input", () => { get().customScenarios[+inp.dataset.i].trigger = inp.value; touch(); });
+  });
+  app.querySelectorAll('[data-role="cs-threat"]').forEach(t => {
+    autoGrow(t);
+    t.addEventListener("input", () => { get().customScenarios[+t.dataset.i].threat = t.value; autoGrow(t); touch(); });
+  });
+  app.querySelectorAll('[data-role="cs-benign"]').forEach(t => {
+    autoGrow(t);
+    t.addEventListener("input", () => { get().customScenarios[+t.dataset.i].benign = t.value; autoGrow(t); touch(); });
+  });
+  app.querySelectorAll('[data-role="cs-remove"]').forEach(btn => {
+    btn.addEventListener("click", () => { get().customScenarios.splice(+btn.dataset.i, 1); markMorningStarted(); saveMorning(); render(); });
+  });
+  const csAdd = document.getElementById("csAdd");
+  if (csAdd) csAdd.addEventListener("click", () => {
+    get().customScenarios.push({ trigger: "", threat: "", benign: "" });
+    markMorningStarted(); saveMorning(); render();
+  });
+
+  // Exercise 3 — audit
+  app.querySelectorAll('[data-role="audit"]').forEach(el => {
+    if (el.tagName === "TEXTAREA") autoGrow(el);
+    el.addEventListener("input", () => {
+      const id = el.dataset.aid, v = el.value;
+      if (v) get().audit[id] = v; else delete get().audit[id];
+      if (el.tagName === "TEXTAREA") autoGrow(el);
+      touch();
+    });
+  });
+
+  // Exercise 4 — singing
+  const sang = app.querySelector('[data-role="sang"]');
+  if (sang) sang.addEventListener("change", () => {
+    get().sang = sang.checked;
+    sang.closest(".item").classList.toggle("done", sang.checked);
+    touch();
+  });
+
+  // Evening close
+  const ev = app.querySelector('[data-role="evening-text"]');
+  if (ev) { autoGrow(ev); ev.addEventListener("input", () => { get().eveningClose.didNotHappen = ev.value; autoGrow(ev); touch(); }); }
+  const evAcc = app.querySelector('[data-role="evening-accurate"]');
+  if (evAcc) evAcc.addEventListener("change", () => {
+    get().eveningClose.allAccurate = evAcc.checked;
+    evAcc.closest(".item").classList.toggle("done", evAcc.checked);
+    touch();
+  });
+
+  // Date nav
+  const prev = document.getElementById("mPrevDay");
+  if (prev) prev.addEventListener("click", () => { morningDate = shiftIso(morningDate, -1); render(); });
+  const next = document.getElementById("mNextDay");
+  if (next) next.addEventListener("click", () => { if (morningDate < isoToday()) { morningDate = shiftIso(morningDate, 1); render(); } });
+  const tdy = document.getElementById("mToday");
+  if (tdy) tdy.addEventListener("click", () => { morningDate = isoToday(); render(); });
+
+  // File buttons
+  const fsBtns = document.getElementById("morningFsButtons");
+  if (fsBtns) {
+    if (!FS_SUPPORTED) fsBtns.innerHTML = "";
+    else if (mFileHandle) fsBtns.innerHTML = '<button class="btn ghost" id="mFsChange">Change file</button><button class="danger-link" id="mFsDisconnect" style="margin:0;">Disconnect</button>';
+    else if (mPendingHandle) fsBtns.innerHTML = '<button class="btn" id="mFsReconnect">Reconnect file</button>';
+    else fsBtns.innerHTML = '<button class="btn" id="mFsConnect">Connect a JSON file</button>';
+  }
+  const bindIf = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener("click", fn); };
+  bindIf("mFsConnect", connectMorningFile);
+  bindIf("mFsChange", connectMorningFile);
+  bindIf("mFsReconnect", reconnectMorningFile);
+  bindIf("mFsDisconnect", disconnectMorningFile);
+  const exp = document.getElementById("morningExportBtn");
+  if (exp) exp.addEventListener("click", exportMorningJSON);
+}
+
+function updateMorningProgress(iso) {
+  if (iso !== morningDate) return;
+  const comp = morningCompletion(iso);
+  const bar = document.getElementById("mBar");
+  const pct = document.getElementById("mPct");
+  if (bar) bar.style.width = comp.pct + "%";
+  if (pct) pct.textContent = `${comp.done} of ${comp.total} exercises · ${comp.pct}%`;
+}
+
+function exportMorningJSON() {
+  const blob = new Blob([JSON.stringify(morningState, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "morning.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ============================================================
+   MORNING FILE SYNC  (its own handle + IndexedDB store)
+   ============================================================ */
+let mFileHandle = null;
+let mPendingHandle = null;
+let mFileName = "";
+let mSyncState = "none";
+let mWriteTimer = null;
+
+function mSetSync(s) { mSyncState = s; updateMorningSyncUI(); }
+
+function mFsStatusText() {
+  if (!FS_SUPPORTED) return "This browser can't auto-sync to a file. Your morning log is saved in this browser — use Export JSON to back it up. (Auto-sync works in Chrome and Edge.)";
+  if (mFileHandle) return "Auto-syncing every change to “" + mFileName + "”.";
+  if (mPendingHandle) return "A saved morning file is linked but needs permission again. Click Reconnect to resume syncing.";
+  return "Pick a JSON file to auto-save your morning log to disk — kept updated on every change. Separate from your recovery file.";
+}
+
+function updateMorningSyncUI() {
+  const banner = document.getElementById("mReconnectBanner");
+  if (banner) banner.hidden = !(mSyncState === "reconnect" || (mPendingHandle && !mFileHandle));
+  const el = document.getElementById("morningSyncStatus");
+  if (el) {
+    let t = "";
+    if (mFileHandle) t = mSyncState === "saving" ? "⋯ saving…" : mSyncState === "error" ? "⚠ save failed" : "● " + mFileName;
+    else if (mPendingHandle) t = "⚠ reconnect file";
+    el.textContent = t;
+    el.className = "sync" + (mSyncState === "error" ? " err" : "");
+  }
+  const ov = document.getElementById("morningFsStatus");
+  if (ov) ov.textContent = mFsStatusText();
+}
+
+function scheduleMorningFileWrite() {
+  if (!mFileHandle) return;
+  clearTimeout(mWriteTimer);
+  mSetSync("saving");
+  mWriteTimer = setTimeout(() => mWriteFile(false), 500);
+}
+
+async function mWriteFile(canPrompt) {
+  if (!mFileHandle) return;
+  try {
+    let perm = await mFileHandle.queryPermission({ mode: "readwrite" });
+    if (perm !== "granted" && canPrompt) perm = await mFileHandle.requestPermission({ mode: "readwrite" });
+    if (perm !== "granted") { mSetSync("reconnect"); return; }
+    const w = await mFileHandle.createWritable();
+    await w.write(JSON.stringify(morningState, null, 2));
+    await w.close();
+    mSetSync("saved");
+  } catch (e) { mSetSync("error"); }
+}
+
+async function mLoadFromFile() {
+  try {
+    const f = await mFileHandle.getFile();
+    if (f.size > 0) {
+      const parsed = JSON.parse(await f.text());
+      if (parsed && typeof parsed === "object" && (parsed.kind === "morning_recalibration" || parsed.days)) {
+        morningState = normalizeMorning(parsed);
+        try { localStorage.setItem(MORNING_STORAGE_KEY, JSON.stringify(morningState)); } catch (e) {}
+      }
+    }
+    mFileName = mFileHandle.name;
+    mSetSync("saved");
+  } catch (e) { mSetSync("error"); }
+}
+
+async function connectMorningFile() {
+  if (!FS_SUPPORTED) return;
+  let handle;
+  try {
+    handle = await window.showSaveFilePicker({
+      suggestedName: "morning.json",
+      types: [{ description: "JSON file", accept: { "application/json": [".json"] } }]
+    });
+  } catch (e) { return; }
+
+  let loaded = false;
+  try {
+    const f = await handle.getFile();
+    if (f.size > 0) {
+      const parsed = JSON.parse(await f.text());
+      if (parsed && typeof parsed === "object" && (parsed.kind === "morning_recalibration" || parsed.days)) {
+        const fresh = Object.keys(morningState.days).length === 0 && !morningState.firstPracticeDate;
+        if (fresh || confirm("This file already contains a saved morning log.\n\nOK = load it into this browser (replaces current data).\nCancel = overwrite the file with your current data.")) {
+          morningState = normalizeMorning(parsed);
+          loaded = true;
+        }
+      }
+    }
+  } catch (e) { /* empty or unreadable — we'll overwrite */ }
+
+  mFileHandle = handle;
+  mPendingHandle = null;
+  mFileName = handle.name;
+  try { await mStoreHandle(handle); } catch (e) {}
+  try { localStorage.setItem(MORNING_STORAGE_KEY, JSON.stringify(morningState)); } catch (e) {}
+  await mWriteFile(true);
+  if (loaded) morningDate = isoToday();
+  render();
+}
+
+async function reconnectMorningFile() {
+  const h = mFileHandle || mPendingHandle;
+  if (!h) return;
+  try {
+    const perm = await h.requestPermission({ mode: "readwrite" });
+    if (perm === "granted") {
+      mFileHandle = h;
+      mPendingHandle = null;
+      mFileName = h.name;
+      await mLoadFromFile();
+      render();
+    }
+  } catch (e) {}
+}
+
+async function disconnectMorningFile() {
+  mFileHandle = null;
+  mPendingHandle = null;
+  mFileName = "";
+  mSetSync("none");
+  try { await mClearHandle(); } catch (e) {}
+  render();
+}
+
+/* ---- IndexedDB: persist the morning file handle ---- */
+function midb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open("morning_fs", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("handles");
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function mStoreHandle(h) {
+  const db = await midb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("handles", "readwrite");
+    tx.objectStore("handles").put(h, "file");
+    tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+  });
+}
+async function mGetStoredHandle() {
+  const db = await midb();
+  return new Promise(res => {
+    const tx = db.transaction("handles", "readonly");
+    const rq = tx.objectStore("handles").get("file");
+    rq.onsuccess = () => res(rq.result || null);
+    rq.onerror = () => res(null);
+  });
+}
+async function mClearHandle() {
+  const db = await midb();
+  return new Promise(res => {
+    const tx = db.transaction("handles", "readwrite");
+    tx.objectStore("handles").delete("file");
+    tx.oncomplete = res; tx.onerror = res;
+  });
+}
+
+/* ============================================================
+   NAV WIRING + BOOT
+   ============================================================ */
+document.querySelectorAll("nav.views button").forEach(b => {
+  b.addEventListener("click", () => {
+    currentView = b.dataset.view;
+    if (currentView === "week") weekViewWeek = weekOf(currentDay);
+    render();
+  });
+});
+document.getElementById("reconnectBtn").addEventListener("click", reconnectFile);
+document.getElementById("mReconnectBtn").addEventListener("click", reconnectMorningFile);
+
+async function init() {
+  if (FS_SUPPORTED) {
+    try {
+      const h = await getStoredHandle();
+      if (h) {
+        const perm = await h.queryPermission({ mode: "readwrite" });
+        if (perm === "granted") { fileHandle = h; fileName = h.name; await loadFromFile(); }
+        else { pendingHandle = h; syncState = "reconnect"; }
+      }
+    } catch (e) {}
+  }
+  if (FS_SUPPORTED) {
+    try {
+      const h = await mGetStoredHandle();
+      if (h) {
+        const perm = await h.queryPermission({ mode: "readwrite" });
+        if (perm === "granted") { mFileHandle = h; mFileName = h.name; await mLoadFromFile(); }
+        else { mPendingHandle = h; mSyncState = "reconnect"; }
+      }
+    } catch (e) {}
+  }
+  currentDay = computeCurrentDay();
+  // Persist the normalized shape (legend + any migrations) right away so the
+  // saved file is self-describing without waiting for the first edit.
+  if (state.startDate) save();
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
