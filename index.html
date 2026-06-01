@@ -489,6 +489,35 @@
 
   .overall-bar { margin-top: 22px; }
 
+  /* ---- overview journey (gentle, no metrics) ---- */
+  .journey { margin-top: 30px; }
+  .journey-path {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    margin-bottom: 22px;
+  }
+  .jweek { display: flex; gap: 9px; }
+  .jdot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    box-sizing: border-box;
+    flex: 0 0 auto;
+  }
+  .jdot.rest { background: var(--accent-soft); border-color: var(--accent-soft); }
+  .jdot.done { background: var(--accent); border-color: var(--accent); }
+  .jdot.today { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+  .journey-line {
+    font-size: 20px;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+  .journey-sub { color: var(--ink-soft); font-size: 15px; margin: 0; }
+
   .reference details {
     border-bottom: 1px solid var(--line);
     padding: 6px 0;
@@ -1392,42 +1421,57 @@ function renderWeek() {
 
 /* ---------- OVERVIEW ---------- */
 function renderOverview() {
-  // stats
-  let started = 0, totalChecked = 0, totalItems = 0;
-  const weekPct = { 1: [], 2: [], 3: [] };
+  // The journey, told gently: where you are, and how many days you've shown up
+  // for — no item counts, no percentages, nothing that can be "failed."
+  const today = computeCurrentDay();
+  const wk = weekOf(today);
+  const w = WEEKS[wk];
+
+  // A day "shown up for" = one you engaged with at all (checked, noted, answered).
+  const touched = {};
+  let shownUp = 0;
   for (let d = 1; d <= TOTAL_DAYS; d++) {
-    const comp = completionForDay(d);
-    if (state.days[d] && (Object.keys(state.days[d].items).length || (state.days[d].notes && state.days[d].notes.length) ||
-        Object.keys(state.days[d].questions).length)) started++;
-    totalChecked += comp.done;
-    totalItems += comp.total;
-    weekPct[weekOf(d)].push(comp.pct);
+    const rec = state.days[d];
+    if (rec && (Object.keys(rec.items).length || (rec.notes && rec.notes.length) ||
+        Object.keys(rec.questions).length)) { touched[d] = true; shownUp++; }
   }
-  const overallPct = totalItems ? Math.round((totalChecked / totalItems) * 100) : 0;
-  const avg = arr => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
+
+  // Build the path of days: three gentle clusters of seven.
+  let pathHtml = "";
+  for (let wkn = 1; wkn <= 3; wkn++) {
+    pathHtml += `<div class="jweek">`;
+    for (let i = 0; i < 7; i++) {
+      const d = (wkn - 1) * 7 + i + 1;
+      let cls = "jdot";
+      if (d < today) cls += touched[d] ? " done" : " rest";
+      else if (d === today) cls += touched[d] ? " done today" : " today";
+      else cls += " future";
+      const dateStr = fmtDate(dateForDay(d));
+      pathHtml += `<span class="${cls}" title="Day ${d}${dateStr ? " · " + esc(dateStr) : ""}"></span>`;
+    }
+    pathHtml += `</div>`;
+  }
+
+  const journeyLines = {
+    1: "These early days are for rest. There is nothing to catch up on.",
+    2: "Movement is returning, gently. Let it come at its own pace.",
+    3: "You're finding your rhythm again. Notice how far your body has come."
+  };
+  const shownUpText = shownUp === 0
+    ? "Whenever you're ready, the days are here."
+    : `You've shown up for ${shownUp} ${shownUp === 1 ? "day" : "days"} so far.`;
 
   let html = `
     <div class="dayhead">
       <div class="week-label">Overview</div>
       <h1>The whole journey</h1>
-      <div class="phase">Started ${esc(fmtDate(dateForDay(1)))} · Day ${computeCurrentDay()} today</div>
+      <div class="phase">Started ${esc(fmtDate(dateForDay(1)))} · Day ${today} today</div>
     </div>
 
-    <div class="stat-grid">
-      <div class="stat"><div class="big">${started}</div><div class="lbl">Days touched</div></div>
-      <div class="stat"><div class="big">${overallPct}%</div><div class="lbl">Items done</div></div>
-      <div class="stat"><div class="big">${totalChecked}</div><div class="lbl">Checked</div></div>
-    </div>
-
-    <div class="stat-grid">
-      <div class="stat"><div class="big">${avg(weekPct[1])}%</div><div class="lbl">Week 1</div></div>
-      <div class="stat"><div class="big">${avg(weekPct[2])}%</div><div class="lbl">Week 2</div></div>
-      <div class="stat"><div class="big">${avg(weekPct[3])}%</div><div class="lbl">Week 3</div></div>
-    </div>
-
-    <div class="overall-bar progress">
-      <div class="bar"><i style="width:${overallPct}%"></i></div>
-      <div class="pct">${totalChecked} of ${totalItems} items across 21 days</div>
+    <div class="journey">
+      <div class="journey-path">${pathHtml}</div>
+      <p class="journey-line">${esc(journeyLines[wk])}</p>
+      <p class="journey-sub">Week ${wk} · ${esc(w.title)} · Day ${today} of ${TOTAL_DAYS}. ${esc(shownUpText)}</p>
     </div>
 
     <div class="section">
