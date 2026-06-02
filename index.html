@@ -928,6 +928,7 @@ function normalize(s) {
     day.questions = day.questions || {};
     day.itemNotes = day.itemNotes || {};
     if (typeof day.notes !== "string") day.notes = "";
+    if (typeof day.synchronicities !== "string") day.synchronicities = "";
     if (day.skips) {
       for (const k in day.skips) {
         if (day.skips[k] && !day.itemNotes[k]) day.itemNotes[k] = day.skips[k];
@@ -950,12 +951,13 @@ function save() {
   scheduleFileWrite();
 }
 function ensureDay(d) {
-  if (!state.days[d]) state.days[d] = { items: {}, questions: {}, notes: "", itemNotes: {} };
+  if (!state.days[d]) state.days[d] = { items: {}, questions: {}, notes: "", itemNotes: {}, synchronicities: "" };
   const day = state.days[d];
   day.items = day.items || {};
   day.questions = day.questions || {};
   day.itemNotes = day.itemNotes || {};
   if (typeof day.notes !== "string") day.notes = "";
+  if (typeof day.synchronicities !== "string") day.synchronicities = "";
   return day;
 }
 
@@ -1262,6 +1264,11 @@ function renderDay() {
         <input id="q-${q.id}" type="text" data-role="question" data-qid="${q.id}" value="${esc(val)}" />
       </div>`;
   });
+  html += `
+    <div class="qfield">
+      <label for="q-synchronicities">Synchronicities</label>
+      <textarea id="q-synchronicities" class="notes" data-role="synchronicities" rows="1" placeholder="Coincidences worth noting — a word that appeared three times, an animal that crossed your path, a song that answered a question. Just collect them; don't force meaning.">${esc(rec.synchronicities)}</textarea>
+    </div>`;
   html += `</div>`;
 
   // notes
@@ -1338,6 +1345,9 @@ function bindDay(day) {
 
   const notes = app.querySelector('[data-role="notes"]');
   if (notes) notes.addEventListener("input", () => { rec.notes = notes.value; save(); });
+
+  const sync = app.querySelector('[data-role="synchronicities"]');
+  if (sync) sync.addEventListener("input", () => { rec.synchronicities = sync.value; save(); });
 
   const prev = document.getElementById("prevDay");
   if (prev) prev.addEventListener("click", () => { if (currentDay > 1) { currentDay--; render(); } });
@@ -1433,6 +1443,7 @@ function renderOverview() {
   for (let d = 1; d <= TOTAL_DAYS; d++) {
     const rec = state.days[d];
     if (rec && (Object.keys(rec.items).length || (rec.notes && rec.notes.length) ||
+        (rec.synchronicities && rec.synchronicities.length) ||
         Object.keys(rec.questions).length)) { touched[d] = true; shownUp++; }
   }
 
