@@ -25,7 +25,7 @@ Evening** — plus weekly tasks, reminders, and "markers to notice."
 - Per-day checklist generated from the plan, grouped by section.
 - Optional free-text note on every checklist item (e.g. why something was skipped).
 - A daily progress bar (items done / total).
-- A check-in with tracked questions: sleep quality, energy 1–10, any skips, plus a
+- A check-in with tracked questions: sleep quality, energy 1–10, any skips, synchronicity logger, plus a
   week-specific question.
 - A free-text notes field per day.
 - Day-to-day navigation with a "jump to today" shortcut. "Today" is computed from
