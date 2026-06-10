@@ -633,6 +633,14 @@
   .scenario .sc-res { margin: 0 0 6px; color: var(--accent); font-style: italic; }
   .scenario .sc-check { min-height: 36px; padding: 4px 0; }
   .scenario .sc-check span { font-size: 15px; color: var(--ink-soft); }
+  ol.sentences { margin: 8px 0 16px; padding-left: 22px; }
+  ol.sentences li {
+    margin: 0 0 12px;
+    padding-left: 6px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  ol.sentences li::marker { color: var(--accent); }
 
   .custom-sc {
     border-top: 1px solid var(--line);
@@ -897,6 +905,17 @@ const AUDIT_FIELDS = [
 
 const SINGING_TEXT = "Not metaphorical. Sing one verse of anything you like — hum if you're not in the mood for words. This is vagal toning: it activates the parasympathetic nervous system through throat vibration and a long exhale. Do it after the written exercises, as a physical reset.";
 
+const RESOLVE_INTRO = "Read each line slowly, morning and evening. Let it land before moving on. Tick each sitting once you've sat with all seven.";
+const RESOLVE_SENTENCES = [
+  "My only debt to this company was good work, and I have paid it in full.",
+  "I am allowed to leave a place I no longer believe in, and asking for fair terms is a business conversation, only that.",
+  "My manager's feelings and the aftermath belong to the company; my life belongs to me.",
+  "If they let me go easily, I have lost nothing — my worth was never stored in their reaction.",
+  "I am informing them of a decision I have already made, with calm and respect.",
+  "My colleagues' love was earned by who I am, and who I am leaves with me — their disappointment is the price of being missed, and I can afford it.",
+  "I have moved my worth before and I can move it again; this time it comes home to me, where it answers to no one's approval."
+];
+
 const EVENING_PROMPT = "Today, something my brain predicted did not happen. Specifically:";
 const MORNING_NOTES = [
   "Expect resistance from the critical voice. It will say this is simplistic, or that you already know all this, or that real problems can't be solved by writing in a notebook. That voice is not a reliable advisor.",
@@ -1001,6 +1020,10 @@ function normalizeMorningDay(d) {
     customScenarios: Array.isArray(d.customScenarios) ? d.customScenarios : [],
     audit: d.audit && typeof d.audit === "object" ? d.audit : {},
     sang: !!d.sang,
+    sentences: {
+      morning: !!(d.sentences && d.sentences.morning),
+      evening: !!(d.sentences && d.sentences.evening)
+    },
     eveningClose: {
       didNotHappen: d.eveningClose && typeof d.eveningClose.didNotHappen === "string" ? d.eveningClose.didNotHappen : "",
       allAccurate: !!(d.eveningClose && d.eveningClose.allAccurate)
@@ -1772,7 +1795,7 @@ function morningCompletion(iso) {
   const rec = getMorningDay(iso);
   const phase = scenarioPhase(practiceDayNumber(iso));
   let done = 0;
-  const total = 4;
+  const total = phase >= 2 ? 5 : 4;
   if (rec.predictions.every(p => p.text.trim())) done++;
   if (phase === 3) {
     if (rec.customScenarios.some(c => (c.trigger || "").trim() && (c.benign || "").trim())) done++;
@@ -1781,6 +1804,7 @@ function morningCompletion(iso) {
   }
   if (AUDIT_FIELDS.every(f => (rec.audit[f.id] || "").trim())) done++;
   if (rec.sang) done++;
+  if (phase >= 2 && rec.sentences.morning && rec.sentences.evening) done++;
   return { done, total, pct: Math.round((done / total) * 100) };
 }
 
@@ -1905,6 +1929,24 @@ function renderMorning() {
       <p class="muted ex-intro">${esc(SINGING_TEXT)}</p>
     </div>`;
 
+  /* Exercise 5 — Seven Sentences (week 2 onwards) */
+  if (phase >= 2) {
+    html += `
+      <div class="section">
+        <div class="section-title">Exercise 5 · Seven Sentences <span class="ex-time">3 min</span></div>
+        <p class="muted ex-intro">${esc(RESOLVE_INTRO)}</p>
+        <ol class="sentences">
+          ${RESOLVE_SENTENCES.map(s => `<li>${esc(s)}</li>`).join("")}
+        </ol>
+        <div class="item ${rec.sentences.morning ? "done" : ""}">
+          <label class="check"><input type="checkbox" data-role="sentences" data-when="morning" ${rec.sentences.morning ? "checked" : ""} /><span>I sat with these this morning</span></label>
+        </div>
+        <div class="item ${rec.sentences.evening ? "done" : ""}">
+          <label class="check"><input type="checkbox" data-role="sentences" data-when="evening" ${rec.sentences.evening ? "checked" : ""} /><span>I sat with these this evening</span></label>
+        </div>
+      </div>`;
+  }
+
   /* Evening Close */
   html += `
     <div class="section">
@@ -2013,6 +2055,15 @@ function bindMorning(iso) {
     get().sang = sang.checked;
     sang.closest(".item").classList.toggle("done", sang.checked);
     touch();
+  });
+
+  // Exercise 5 — seven sentences
+  app.querySelectorAll('[data-role="sentences"]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      get().sentences[cb.dataset.when] = cb.checked;
+      cb.closest(".item").classList.toggle("done", cb.checked);
+      touch();
+    });
   });
 
   // Evening close
