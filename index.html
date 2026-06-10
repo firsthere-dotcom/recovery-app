@@ -102,6 +102,42 @@
     font-size: 15px;
     color: var(--ink-soft);
   }
+  .ds-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 4px 0 2px;
+  }
+  .ds-dot {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-faint);
+    flex: 0 0 auto;
+  }
+  .ds-dot.ds-ok { color: #3f7d54; }
+  .ds-dot.ds-err { color: #a4502f; }
+  .ds-dot.ds-off { color: var(--ink-faint); }
+  .ds-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .ds-sub {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+  details.ds-adv {
+    margin-top: 14px;
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+  }
+  details.ds-adv > summary {
+    font-size: 14px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    list-style: revert;
+  }
   nav.views {
     display: flex;
     gap: 2px;
@@ -1534,17 +1570,7 @@ function renderOverview() {
 
     <div class="closing">${esc(CLOSING)}</div>
 
-    <hr class="soft" />
-    <div class="section" style="margin-top:0;">
-      <div class="section-title">Local file</div>
-      <p class="fs-status" id="fsStatus"></p>
-      <div class="save-row" id="fsButtons"></div>
-    </div>
-    <div class="save-row">
-      <button class="btn ghost" id="exportBtn">Export JSON</button>
-      <button class="btn ghost" id="importBtn">Import JSON</button>
-      <input type="file" id="importFile" accept="application/json,.json" hidden />
-    </div>
+    ${dataSyncSectionHtml("recovery")}
     <button class="danger-link" id="resetBtn">Reset all data and start over</button>
   `;
 
@@ -1553,44 +1579,7 @@ function renderOverview() {
   document.getElementById("totalAssess").addEventListener("input", e => {
     state.totalAssessment = e.target.value; save();
   });
-  document.getElementById("exportBtn").addEventListener("click", exportJSON);
-  const impBtn = document.getElementById("importBtn");
-  const impFile = document.getElementById("importFile");
-  if (impBtn && impFile) {
-    impBtn.addEventListener("click", () => impFile.click());
-    impFile.addEventListener("change", () => importJSONFile(impFile, (parsed) => {
-      if (!parsed || typeof parsed !== "object" || !parsed.startDate) {
-        alert("That doesn't look like a recovery export — no start date found.");
-        return;
-      }
-      if (!confirm("Replace the recovery data in this browser with the imported file?")) return;
-      state = normalize(parsed);
-      save();
-      currentView = "day";
-      currentDay = computeCurrentDay();
-      render();
-    }));
-  }
-
-  // file-sync buttons
-  const fsBtns = document.getElementById("fsButtons");
-  if (FS_SUPPORTED) {
-    if (fileHandle) {
-      fsBtns.innerHTML = '<button class="btn ghost" id="fsChange">Change file</button>' +
-        '<button class="danger-link" id="fsDisconnect" style="margin:0;">Disconnect</button>';
-    } else if (pendingHandle) {
-      fsBtns.innerHTML = '<button class="btn" id="fsReconnect">Reconnect file</button>';
-    } else {
-      fsBtns.innerHTML = '<button class="btn" id="fsConnect">Connect a JSON file</button>';
-    }
-  } else {
-    fsBtns.innerHTML = '';
-  }
-  const bindIf = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener("click", fn); };
-  bindIf("fsConnect", connectFile);
-  bindIf("fsChange", connectFile);
-  bindIf("fsReconnect", reconnectFile);
-  bindIf("fsDisconnect", disconnectFile);
+  bindDataSync("recovery");
   document.getElementById("resetBtn").addEventListener("click", () => {
     if (confirm("This will erase all your tracked days, notes, and assessments. Are you sure?")) {
       localStorage.removeItem(STORAGE_KEY);
@@ -1612,8 +1601,6 @@ function renderAbout() {
 
     <p class="about-lede">No decisions to make — each day, just follow the list. The plan moves in three phases, from deep rest into a gentle return.</p>`;
 
-  html += cloudPanelHtml();
-
   html += `
     <div class="section">
       <div class="section-title">The arc</div>`;
@@ -1631,7 +1618,6 @@ function renderAbout() {
     <div class="closing">${esc(CLOSING)}</div>`;
 
   app.innerHTML = html;
-  bindCloudPanel();
 }
 
 // Reads a user-selected .json file (works on all browsers, incl. mobile).
@@ -2020,19 +2006,8 @@ function renderMorning() {
       <details><summary>Why these exercises</summary><p class="muted" style="padding:6px 0;">${esc(MORNING_INTRO)}</p>${MORNING_NOTES.map(n => `<p class="muted" style="padding:6px 0;">${esc(n)}</p>`).join("")}</details>
     </div>`;
 
-  /* Local file */
-  html += `
-    <hr class="soft" />
-    <div class="section" style="margin-top:0;">
-      <div class="section-title">Morning log file</div>
-      <p class="fs-status" id="morningFsStatus"></p>
-      <div class="save-row" id="morningFsButtons"></div>
-    </div>
-    <div class="save-row">
-      <button class="btn ghost" id="morningExportBtn">Export JSON</button>
-      <button class="btn ghost" id="morningImportBtn">Import JSON</button>
-      <input type="file" id="morningImportFile" accept="application/json,.json" hidden />
-    </div>`;
+  /* Data & sync */
+  html += dataSyncSectionHtml("morning");
 
   app.innerHTML = html;
   bindMorning(iso);
@@ -2138,37 +2113,8 @@ function bindMorning(iso) {
   const tdy = document.getElementById("mToday");
   if (tdy) tdy.addEventListener("click", () => { morningDate = isoToday(); render(); });
 
-  // File buttons
-  const fsBtns = document.getElementById("morningFsButtons");
-  if (fsBtns) {
-    if (!FS_SUPPORTED) fsBtns.innerHTML = "";
-    else if (mFileHandle) fsBtns.innerHTML = '<button class="btn ghost" id="mFsChange">Change file</button><button class="danger-link" id="mFsDisconnect" style="margin:0;">Disconnect</button>';
-    else if (mPendingHandle) fsBtns.innerHTML = '<button class="btn" id="mFsReconnect">Reconnect file</button>';
-    else fsBtns.innerHTML = '<button class="btn" id="mFsConnect">Connect a JSON file</button>';
-  }
-  const bindIf = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener("click", fn); };
-  bindIf("mFsConnect", connectMorningFile);
-  bindIf("mFsChange", connectMorningFile);
-  bindIf("mFsReconnect", reconnectMorningFile);
-  bindIf("mFsDisconnect", disconnectMorningFile);
-  const exp = document.getElementById("morningExportBtn");
-  if (exp) exp.addEventListener("click", exportMorningJSON);
-  const mImpBtn = document.getElementById("morningImportBtn");
-  const mImpFile = document.getElementById("morningImportFile");
-  if (mImpBtn && mImpFile) {
-    mImpBtn.addEventListener("click", () => mImpFile.click());
-    mImpFile.addEventListener("change", () => importJSONFile(mImpFile, (parsed) => {
-      if (!parsed || typeof parsed !== "object" || (!parsed.days && !parsed.firstPracticeDate)) {
-        alert("That doesn't look like a morning export.");
-        return;
-      }
-      if (!confirm("Replace the morning data in this browser with the imported file?")) return;
-      morningState = normalizeMorning(parsed);
-      saveMorning();
-      morningDate = isoToday();
-      render();
-    }));
-  }
+  // Data & sync (cloud + local file + import/export)
+  bindDataSync("morning");
 }
 
 function updateMorningProgress(iso) {
@@ -2474,42 +2420,167 @@ async function cloudSignOut() {
   render();
 }
 
-function cloudPanelHtml() {
-  if (!SUPABASE_URL) return "";
-  let inner;
-  if (cloudSync === "off") {
-    inner = `<p class="fs-status">Cloud sync is unavailable — the sync library didn't load. Check your connection and reload.</p>`;
-  } else if (cloudUser) {
-    const who = cloudUser.email || (cloudUser.user_metadata && cloudUser.user_metadata.user_name) || "your account";
-    inner = `
-      <p class="fs-status" id="cloudStatus"></p>
-      <p class="fs-status">Signed in as ${esc(who)}. Every change syncs privately to your account, on any device.</p>
-      <div class="save-row"><button class="danger-link" id="cloudSignOut" style="margin:0;">Sign out</button></div>`;
-  } else {
-    inner = `
-      <p class="fs-status">Sign in with GitHub to sync your data privately across your laptop and phone. Your entries stay private to your account — they're never part of the public site.</p>
-      <div class="save-row"><button class="btn" id="cloudSignIn">Sign in with GitHub</button></div>`;
-  }
-  return `<div class="section"><div class="section-title">Cloud sync</div>${inner}</div>`;
-}
-
-function bindCloudPanel() {
-  const si = document.getElementById("cloudSignIn"); if (si) si.addEventListener("click", cloudSignIn);
-  const so = document.getElementById("cloudSignOut"); if (so) so.addEventListener("click", cloudSignOut);
-  updateCloudUI();
-}
-
 function updateCloudUI() {
+  const offline = !navigator.onLine;
   const el = document.getElementById("cloudStatus");
   if (el) {
-    el.textContent = cloudSync === "syncing" ? "⋯ syncing…"
-      : cloudSync === "error" ? ("⚠ sync error: " + cloudErr)
+    el.textContent = (cloudSync === "error" || offline) ? "⚠ sync paused"
+      : cloudSync === "syncing" ? "⋯ syncing…"
       : cloudSync === "synced" ? "● synced to your account" : "";
   }
   const badge = document.getElementById("cloudBadge");
   if (badge) {
-    badge.textContent = !cloudUser ? "" : (cloudSync === "syncing" ? "☁⋯" : cloudSync === "error" ? "☁⚠" : "☁✓");
-    badge.className = "sync" + (cloudSync === "error" ? " err" : "");
+    const bad = cloudSync === "error" || offline;
+    badge.textContent = !cloudUser ? "" : (bad ? "☁⚠" : cloudSync === "syncing" ? "☁⋯" : "☁✓");
+    badge.className = "sync" + (bad ? " err" : "");
+  }
+}
+
+// Re-push both local datasets to the cloud (used after coming back online or on
+// manual Retry). Last-write-wins favours this device's offline edits.
+async function cloudRetry() {
+  if (!sb || !cloudUser) return;
+  await cloudPushNow("recovery", state);
+  await cloudPushNow("morning", morningState);
+  render();
+}
+
+window.addEventListener("offline", () => { updateCloudUI(); if (cloudUser) render(); });
+window.addEventListener("online", () => { if (cloudUser) cloudRetry(); else updateCloudUI(); });
+
+/* ---------- Adaptive "Data & sync" section (Overview + Morning) ---------- */
+function dataSyncSectionHtml(scope) {
+  const isRecovery = scope === "recovery";
+  const p = isRecovery
+    ? { exportId: "exportBtn", importId: "importBtn", importFile: "importFile",
+        fsStatus: "fsStatus", fsButtons: "fsButtons", label: "your recovery data" }
+    : { exportId: "morningExportBtn", importId: "morningImportBtn", importFile: "morningImportFile",
+        fsStatus: "morningFsStatus", fsButtons: "morningFsButtons", label: "your morning log" };
+
+  // 1. Cloud sync — mirrors the global cloud state (incl. an offline/error case).
+  let cloud;
+  if (cloudSync === "off") {
+    cloud = `<div class="ds-row"><span class="ds-dot ds-off">○</span><div>
+      <div class="ds-title">Cloud sync unavailable</div>
+      <div class="ds-sub">The sync library didn't load. Check your connection and reload to sync across devices.</div></div></div>`;
+  } else if (!cloudUser) {
+    cloud = `<div class="ds-row"><span class="ds-dot ds-off">○</span><div>
+      <div class="ds-title">Not synced</div>
+      <div class="ds-sub">Sign in to keep ${p.label} private and in sync across your laptop and phone. Your entries are never part of the public site.</div></div></div>
+      <div class="save-row"><button class="btn" id="dsSignIn">Sign in with GitHub</button></div>`;
+  } else {
+    const who = cloudUser.email || (cloudUser.user_metadata && cloudUser.user_metadata.user_name) || "your account";
+    if (!navigator.onLine || cloudSync === "error") {
+      cloud = `<div class="ds-row"><span class="ds-dot ds-err">⚠</span><div>
+        <div class="ds-title">Cloud sync paused</div>
+        <div class="ds-sub">Can't reach the server — you may be offline. Your changes are saved in this browser and will sync automatically when the connection returns.</div></div></div>
+        <div class="save-row"><button class="btn" id="dsRetry">Retry now</button><button class="danger-link" id="dsSignOut" style="margin:0;">Sign out</button></div>`;
+    } else {
+      const syncing = cloudSync === "syncing";
+      cloud = `<div class="ds-row"><span class="ds-dot ${syncing ? "" : "ds-ok"}">${syncing ? "⋯" : "●"}</span><div>
+        <div class="ds-title">${syncing ? "Syncing…" : "Synced to your account"}</div>
+        <div class="ds-sub">Signed in as ${esc(who)}. Every change syncs privately to your account, on any device.</div></div></div>
+        <div class="save-row"><button class="danger-link" id="dsSignOut" style="margin:0;">Sign out</button></div>`;
+    }
+  }
+
+  // 2. Import — a one-time step to bring in existing data when nothing's synced.
+  const importBlock = `
+    <div class="ds-sub" style="margin-top:2px;">Load data from a JSON export — a one-time step to bring in existing data when nothing's synced yet. Replaces what's in this browser.</div>
+    <div class="save-row"><button class="btn ghost" id="${p.importId}">Import JSON</button>
+    <input type="file" id="${p.importFile}" accept="application/json,.json" hidden /></div>`;
+
+  // 3. Local file — desktop auto-save; creates the file or loads from it.
+  // Only offered where the File System Access API works (Chrome/Edge, top-level).
+  const fsBlock = FS_SUPPORTED ? `
+    <div class="ds-title" style="margin-top:14px;">Local file (desktop)</div>
+    <div class="ds-sub" style="margin-top:2px;">Auto-save to a JSON file on this computer. Creates the file if it doesn't exist, or loads your data from it if it does. For desktop-only use — you don't need this when cloud sync is on.</div>
+    <p class="fs-status" id="${p.fsStatus}"></p>
+    <div class="save-row" id="${p.fsButtons}"></div>` : "";
+
+  // 4. Export — always available.
+  const exportBlock = `<div class="save-row"><button class="btn ghost" id="${p.exportId}">Export JSON</button></div>`;
+
+  let body;
+  if (cloudUser) {
+    body = cloud +
+      `<div class="ds-title" style="margin-top:14px;">Export a backup</div>${exportBlock}` +
+      `<details class="ds-adv"><summary>Other options${FS_SUPPORTED ? " (local file, import)" : " (import)"}</summary>
+        <div class="ds-title" style="margin-top:10px;">Import JSON</div>${importBlock}
+        ${fsBlock}
+      </details>`;
+  } else {
+    body = cloud +
+      `<div class="ds-title" style="margin-top:14px;">Import JSON</div>${importBlock}` +
+      fsBlock +
+      `<div class="ds-title" style="margin-top:14px;">Export a backup</div>${exportBlock}`;
+  }
+
+  return `<hr class="soft" />
+    <div class="section" style="margin-top:0;">
+      <div class="section-title">Data &amp; sync</div>
+      ${body}
+    </div>`;
+}
+
+function bindDataSync(scope) {
+  const bindIf = (id, fn) => { const e = document.getElementById(id); if (e) e.addEventListener("click", fn); };
+  bindIf("dsSignIn", cloudSignIn);
+  bindIf("dsSignOut", cloudSignOut);
+  bindIf("dsRetry", cloudRetry);
+
+  if (scope === "recovery") {
+    bindIf("exportBtn", exportJSON);
+    const impBtn = document.getElementById("importBtn"), impFile = document.getElementById("importFile");
+    if (impBtn && impFile) {
+      impBtn.addEventListener("click", () => impFile.click());
+      impFile.addEventListener("change", () => importJSONFile(impFile, (parsed) => {
+        if (!parsed || typeof parsed !== "object" || !parsed.startDate) {
+          alert("That doesn't look like a recovery export — no start date found."); return;
+        }
+        if (!confirm("Replace the recovery data in this browser with the imported file?")) return;
+        state = normalize(parsed); save();
+        currentView = "day"; currentDay = computeCurrentDay(); render();
+      }));
+    }
+    const fsBtns = document.getElementById("fsButtons");
+    if (fsBtns) {
+      if (!FS_SUPPORTED) fsBtns.innerHTML = "";
+      else if (fileHandle) fsBtns.innerHTML = '<button class="btn ghost" id="fsChange">Change file</button><button class="danger-link" id="fsDisconnect" style="margin:0;">Disconnect</button>';
+      else if (pendingHandle) fsBtns.innerHTML = '<button class="btn" id="fsReconnect">Reconnect file</button>';
+      else fsBtns.innerHTML = '<button class="btn" id="fsConnect">Connect a JSON file</button>';
+    }
+    bindIf("fsConnect", connectFile);
+    bindIf("fsChange", connectFile);
+    bindIf("fsReconnect", reconnectFile);
+    bindIf("fsDisconnect", disconnectFile);
+    updateSyncUI();
+  } else {
+    bindIf("morningExportBtn", exportMorningJSON);
+    const mImpBtn = document.getElementById("morningImportBtn"), mImpFile = document.getElementById("morningImportFile");
+    if (mImpBtn && mImpFile) {
+      mImpBtn.addEventListener("click", () => mImpFile.click());
+      mImpFile.addEventListener("change", () => importJSONFile(mImpFile, (parsed) => {
+        if (!parsed || typeof parsed !== "object" || (!parsed.days && !parsed.firstPracticeDate)) {
+          alert("That doesn't look like a morning export."); return;
+        }
+        if (!confirm("Replace the morning data in this browser with the imported file?")) return;
+        morningState = normalizeMorning(parsed); saveMorning();
+        morningDate = isoToday(); render();
+      }));
+    }
+    const fsBtns = document.getElementById("morningFsButtons");
+    if (fsBtns) {
+      if (!FS_SUPPORTED) fsBtns.innerHTML = "";
+      else if (mFileHandle) fsBtns.innerHTML = '<button class="btn ghost" id="mFsChange">Change file</button><button class="danger-link" id="mFsDisconnect" style="margin:0;">Disconnect</button>';
+      else if (mPendingHandle) fsBtns.innerHTML = '<button class="btn" id="mFsReconnect">Reconnect file</button>';
+      else fsBtns.innerHTML = '<button class="btn" id="mFsConnect">Connect a JSON file</button>';
+    }
+    bindIf("mFsConnect", connectMorningFile);
+    bindIf("mFsChange", connectMorningFile);
+    bindIf("mFsReconnect", reconnectMorningFile);
+    bindIf("mFsDisconnect", disconnectMorningFile);
+    updateMorningSyncUI();
   }
 }
 
