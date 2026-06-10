@@ -1542,6 +1542,8 @@ function renderOverview() {
     </div>
     <div class="save-row">
       <button class="btn ghost" id="exportBtn">Export JSON</button>
+      <button class="btn ghost" id="importBtn">Import JSON</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden />
     </div>
     <button class="danger-link" id="resetBtn">Reset all data and start over</button>
   `;
@@ -1552,6 +1554,23 @@ function renderOverview() {
     state.totalAssessment = e.target.value; save();
   });
   document.getElementById("exportBtn").addEventListener("click", exportJSON);
+  const impBtn = document.getElementById("importBtn");
+  const impFile = document.getElementById("importFile");
+  if (impBtn && impFile) {
+    impBtn.addEventListener("click", () => impFile.click());
+    impFile.addEventListener("change", () => importJSONFile(impFile, (parsed) => {
+      if (!parsed || typeof parsed !== "object" || !parsed.startDate) {
+        alert("That doesn't look like a recovery export — no start date found.");
+        return;
+      }
+      if (!confirm("Replace the recovery data in this browser with the imported file?")) return;
+      state = normalize(parsed);
+      save();
+      currentView = "day";
+      currentDay = computeCurrentDay();
+      render();
+    }));
+  }
 
   // file-sync buttons
   const fsBtns = document.getElementById("fsButtons");
@@ -1613,6 +1632,22 @@ function renderAbout() {
 
   app.innerHTML = html;
   bindCloudPanel();
+}
+
+// Reads a user-selected .json file (works on all browsers, incl. mobile).
+function importJSONFile(inputEl, onParsed) {
+  const f = inputEl.files && inputEl.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed = null;
+    try { parsed = JSON.parse(reader.result); }
+    catch (e) { alert("Couldn't read that file — is it a valid JSON export?"); }
+    inputEl.value = "";  // allow re-selecting the same file later
+    if (parsed !== null) onParsed(parsed);
+  };
+  reader.onerror = () => { alert("Couldn't open that file."); inputEl.value = ""; };
+  reader.readAsText(f);
 }
 
 function exportJSON() {
@@ -1995,6 +2030,8 @@ function renderMorning() {
     </div>
     <div class="save-row">
       <button class="btn ghost" id="morningExportBtn">Export JSON</button>
+      <button class="btn ghost" id="morningImportBtn">Import JSON</button>
+      <input type="file" id="morningImportFile" accept="application/json,.json" hidden />
     </div>`;
 
   app.innerHTML = html;
@@ -2116,6 +2153,22 @@ function bindMorning(iso) {
   bindIf("mFsDisconnect", disconnectMorningFile);
   const exp = document.getElementById("morningExportBtn");
   if (exp) exp.addEventListener("click", exportMorningJSON);
+  const mImpBtn = document.getElementById("morningImportBtn");
+  const mImpFile = document.getElementById("morningImportFile");
+  if (mImpBtn && mImpFile) {
+    mImpBtn.addEventListener("click", () => mImpFile.click());
+    mImpFile.addEventListener("change", () => importJSONFile(mImpFile, (parsed) => {
+      if (!parsed || typeof parsed !== "object" || (!parsed.days && !parsed.firstPracticeDate)) {
+        alert("That doesn't look like a morning export.");
+        return;
+      }
+      if (!confirm("Replace the morning data in this browser with the imported file?")) return;
+      morningState = normalizeMorning(parsed);
+      saveMorning();
+      morningDate = isoToday();
+      render();
+    }));
+  }
 }
 
 function updateMorningProgress(iso) {
