@@ -665,6 +665,7 @@
       <div class="brand-row">
         <div class="brand">Recovery · 3 Weeks</div>
         <div class="sync" id="syncStatus"></div>
+        <span class="sync" id="cloudBadge"></span>
       </div>
       <nav class="views">
         <button data-view="day">Day</button>
@@ -686,6 +687,7 @@
 
   <main class="wrap" id="app"></main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 
@@ -968,6 +970,7 @@ function normalize(s) {
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
   scheduleFileWrite();
+  cloudPush("recovery", state);
 }
 function ensureDay(d) {
   if (!state.days[d]) state.days[d] = { items: {}, questions: {}, notes: "", itemNotes: {}, synchronicities: "" };
@@ -1033,6 +1036,7 @@ function normalizeMorningDay(d) {
 function saveMorning() {
   try { localStorage.setItem(MORNING_STORAGE_KEY, JSON.stringify(morningState)); } catch (e) {}
   scheduleMorningFileWrite();
+  cloudPush("morning", morningState);
 }
 function ensureMorningDay(iso) {
   if (!morningState.days[iso]) morningState.days[iso] = normalizeMorningDay({});
@@ -1182,6 +1186,7 @@ function render() {
   else renderOverview();
   updateSyncUI();
   updateMorningSyncUI();
+  updateCloudUI();
   window.scrollTo(0, 0);
 }
 
@@ -1207,8 +1212,16 @@ function renderStart() {
         <div>Have a saved recovery file?</div>
         <div style="margin-top:10px;"><button class="btn ghost" id="loadFile">Load from a JSON file</button></div>
       </div>` : ``}
+      ${SUPABASE_URL ? `<div class="alt">
+        <div>Already syncing on another device?</div>
+        <p class="fs-status" id="cloudStatus" style="margin:6px 0;"></p>
+        <div style="margin-top:10px;"><button class="btn ghost" id="cloudSignIn">Sign in with GitHub to restore</button></div>
+      </div>` : ``}
     </div>`;
   document.getElementById("startToday").addEventListener("click", () => begin(today));
+  const csi = document.getElementById("cloudSignIn");
+  if (csi) csi.addEventListener("click", cloudSignIn);
+  updateCloudUI();
   document.getElementById("startPicked").addEventListener("click", () => {
     const v = document.getElementById("startDatePick").value;
     if (!v) return;
@@ -1578,8 +1591,11 @@ function renderAbout() {
       <div class="phase">Deep rest, then a gentle return.</div>
     </div>
 
-    <p class="about-lede">No decisions to make — each day, just follow the list. The plan moves in three phases, from deep rest into a gentle return.</p>
+    <p class="about-lede">No decisions to make — each day, just follow the list. The plan moves in three phases, from deep rest into a gentle return.</p>`;
 
+  html += cloudPanelHtml();
+
+  html += `
     <div class="section">
       <div class="section-title">The arc</div>`;
   [1, 2, 3].forEach(wk => {
@@ -1596,6 +1612,7 @@ function renderAbout() {
     <div class="closing">${esc(CLOSING)}</div>`;
 
   app.innerHTML = html;
+  bindCloudPanel();
 }
 
 function exportJSON() {
@@ -2285,6 +2302,165 @@ async function mClearHandle() {
 }
 
 /* ============================================================
+   CLOUD SYNC  (Supabase: GitHub auth + private per-user rows)
+   ============================================================ */
+// Safe to be public: the anon key is designed to ship in the client, and the
+// data is protected by login + row-level security on the app_data table.
+const SUPABASE_URL = "https://rcftdramzykapbelilxf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZnRkcmFtenlrYXBiZWxpbHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODg1MzgsImV4cCI6MjA5NjY2NDUzOH0.e-xGD7eAis8eDTyHYclSvhUxUd2KlvK6D1FR2m_SYCo";
+// Where GitHub sends you back after login. Must match Supabase URL config.
+const APP_URL = location.origin + location.pathname;
+
+let sb = null;
+let cloudUser = null;
+let cloudSync = "off";   // off | signedout | syncing | synced | error
+let cloudErr = "";
+let cloudPulling = false;
+const cloudPushTimers = {};
+
+function initSupabase() {
+  if (sb) return sb;
+  if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+  return sb;
+}
+
+function cloudInit() {
+  if (!initSupabase()) { cloudSync = "off"; updateCloudUI(); return; }
+  cloudSync = "signedout";
+  // Fires INITIAL_SESSION on load (restoring a saved session or processing the
+  // GitHub redirect), then SIGNED_IN / SIGNED_OUT as auth changes.
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === "TOKEN_REFRESHED") { cloudUser = session ? session.user : null; return; }
+    // Defer: running other supabase calls synchronously inside this callback can deadlock.
+    setTimeout(() => cloudOnAuth(session), 0);
+  });
+}
+
+async function cloudOnAuth(session) {
+  cloudUser = session ? session.user : null;
+  if (cloudUser) {
+    cloudSync = "syncing"; updateCloudUI();
+    await cloudPull();
+    if (cloudSync !== "error") cloudSync = "synced";
+    currentDay = computeCurrentDay();
+    render();
+  } else {
+    cloudSync = "signedout";
+    updateCloudUI();
+  }
+}
+
+async function cloudPull() {
+  if (!sb || !cloudUser || cloudPulling) return;
+  cloudPulling = true;
+  try {
+    const { data, error } = await sb.from("app_data").select("key,data").in("key", ["recovery", "morning"]);
+    if (error) throw error;
+    const rows = {};
+    (data || []).forEach(r => { rows[r.key] = r.data; });
+
+    // Recovery: adopt remote if it exists, else seed remote from this device.
+    if (rows.recovery && rows.recovery.startDate) {
+      state = normalize(rows.recovery);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    } else if (state.startDate) {
+      await cloudPushNow("recovery", state);
+    }
+
+    // Morning: same pattern.
+    if (rows.morning && (rows.morning.days || rows.morning.firstPracticeDate)) {
+      morningState = normalizeMorning(rows.morning);
+      try { localStorage.setItem(MORNING_STORAGE_KEY, JSON.stringify(morningState)); } catch (e) {}
+    } else if (Object.keys(morningState.days || {}).length) {
+      await cloudPushNow("morning", morningState);
+    }
+    cloudErr = "";
+  } catch (e) {
+    cloudSync = "error"; cloudErr = e.message || String(e);
+  } finally {
+    cloudPulling = false;
+  }
+}
+
+async function cloudPushNow(key, data) {
+  if (!sb || !cloudUser) return;
+  try {
+    cloudSync = "syncing"; updateCloudUI();
+    const { error } = await sb.from("app_data").upsert(
+      { user_id: cloudUser.id, key: key, data: data, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,key" }
+    );
+    if (error) throw error;
+    cloudSync = "synced"; cloudErr = "";
+  } catch (e) {
+    cloudSync = "error"; cloudErr = e.message || String(e);
+  }
+  updateCloudUI();
+}
+
+// Debounced — coalesces rapid edits into one write per dataset.
+function cloudPush(key, data) {
+  if (!sb || !cloudUser) return;
+  clearTimeout(cloudPushTimers[key]);
+  cloudSync = "syncing"; updateCloudUI();
+  cloudPushTimers[key] = setTimeout(() => cloudPushNow(key, data), 800);
+}
+
+async function cloudSignIn() {
+  if (!initSupabase()) return;
+  await sb.auth.signInWithOAuth({ provider: "github", options: { redirectTo: APP_URL } });
+}
+
+async function cloudSignOut() {
+  if (!sb) return;
+  await sb.auth.signOut();
+  cloudUser = null; cloudSync = "signedout";
+  render();
+}
+
+function cloudPanelHtml() {
+  if (!SUPABASE_URL) return "";
+  let inner;
+  if (cloudSync === "off") {
+    inner = `<p class="fs-status">Cloud sync is unavailable — the sync library didn't load. Check your connection and reload.</p>`;
+  } else if (cloudUser) {
+    const who = cloudUser.email || (cloudUser.user_metadata && cloudUser.user_metadata.user_name) || "your account";
+    inner = `
+      <p class="fs-status" id="cloudStatus"></p>
+      <p class="fs-status">Signed in as ${esc(who)}. Every change syncs privately to your account, on any device.</p>
+      <div class="save-row"><button class="danger-link" id="cloudSignOut" style="margin:0;">Sign out</button></div>`;
+  } else {
+    inner = `
+      <p class="fs-status">Sign in with GitHub to sync your data privately across your laptop and phone. Your entries stay private to your account — they're never part of the public site.</p>
+      <div class="save-row"><button class="btn" id="cloudSignIn">Sign in with GitHub</button></div>`;
+  }
+  return `<div class="section"><div class="section-title">Cloud sync</div>${inner}</div>`;
+}
+
+function bindCloudPanel() {
+  const si = document.getElementById("cloudSignIn"); if (si) si.addEventListener("click", cloudSignIn);
+  const so = document.getElementById("cloudSignOut"); if (so) so.addEventListener("click", cloudSignOut);
+  updateCloudUI();
+}
+
+function updateCloudUI() {
+  const el = document.getElementById("cloudStatus");
+  if (el) {
+    el.textContent = cloudSync === "syncing" ? "⋯ syncing…"
+      : cloudSync === "error" ? ("⚠ sync error: " + cloudErr)
+      : cloudSync === "synced" ? "● synced to your account" : "";
+  }
+  const badge = document.getElementById("cloudBadge");
+  if (badge) {
+    badge.textContent = !cloudUser ? "" : (cloudSync === "syncing" ? "☁⋯" : cloudSync === "error" ? "☁⚠" : "☁✓");
+    badge.className = "sync" + (cloudSync === "error" ? " err" : "");
+  }
+}
+
+/* ============================================================
    NAV WIRING + BOOT
    ============================================================ */
 document.querySelectorAll("nav.views button").forEach(b => {
@@ -2323,6 +2499,8 @@ async function init() {
   // saved file is self-describing without waiting for the first edit.
   if (state.startDate) save();
   render();
+  // Restore any cloud session and pull remote data (re-renders when ready).
+  cloudInit();
 }
 
 init();
